@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>HomePage</class>
+ <widget class="QWidget" name="HomePage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>830</width>
+    <height>506</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QGroupBox" name="groupDevice">
+   <property name="geometry">
+    <rect>
+     <x>423</x>
+     <y>0</y>
+     <width>403</width>
+     <height>488</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>设备状态</string>
+   </property>
+  </widget>
+  <widget class="QGroupBox" name="groupEnv">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>403</width>
+     <height>488</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>环境数据</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
