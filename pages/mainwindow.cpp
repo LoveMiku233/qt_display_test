@@ -3,13 +3,15 @@
 
 #include <QDebug>
 #include <QPushButton>
+#include <QScreen>
+#include <QStyle>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-    initUi();
+    // ui->setupUi(this);
+    // initUi();
 }
 
 void MainWindow::initUi() {
@@ -47,6 +49,13 @@ void MainWindow::initUi() {
     connect(ui->btnLog, &QPushButton::clicked, this, [=]{
         setPage(PAGE_LOG);
     });
+
+    QScreen *screen = QGuiApplication::primaryScreen();
+    qDebug() << "DPI:" << screen->logicalDotsPerInch()
+             << "Device pixel ratio:" << screen->devicePixelRatio()
+             << "Size:" << screen->size();
+
+    qDebug() << "Current style:" << QApplication::style()->objectName();
 }
 
 void MainWindow::setPage(int id) {
@@ -57,6 +66,7 @@ void MainWindow::setPage(int id) {
     page_id = static_cast<PageIndex>(id);
     // TODO : log add
     qDebug() << "[Debug] MainWindow::setPage = " << id;
+
 }
 
 MainWindow::~MainWindow()
