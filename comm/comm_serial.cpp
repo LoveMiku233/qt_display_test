@@ -1,4 +1,5 @@
 #include "comm_serial.h"
+#include "utils/utils.h"
 
 #include <QDebug>
 #include <errno.h>
@@ -53,8 +54,7 @@ bool CommSerial::open() {
     fd_ = ::open(cfg_.dev.toLocal8Bit().constData(), O_RDWR | O_NOCTTY | O_NONBLOCK);
     if (fd_ < 0) {
         // open failed, emit error
-        emit errorOccurred(QString("open(%1) failed: %2")
-                           .arg(cfg_.dev, QString::fromLocal8Bit(strerror(errno))));
+        emit errorOccurred(sysErrStr("open(%1) failed: %2"));
         return false;
     }
     // config
@@ -114,8 +114,7 @@ int64_t CommSerial::wirteBytes(const QByteArray &data) {
         if (n < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)) {
             break;
         }
-        emit errorOccurred(QString("serial write failed: %1")
-                           .arg(QString::fromLocal8Bit(strerror(errno))));
+        emit errorOccurred(sysErrStr("serial write failed: %1"));
         return -1;
     }
     return total;
@@ -135,15 +134,14 @@ void CommSerial::onReadable() {
             continue;
         }
         if (n == 0) {
-            // EOF：一般串口不会出现，保险处理
+            // EOF
             break;
         }
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             break;
         }
 
-        emit errorOccurred(QString("serial read failed: %1")
-                           .arg(QString::fromLocal8Bit(strerror(errno))));
+        emit errorOccurred(sysErrStr("serial read failed: %1"));
         break;
     }
 
@@ -158,12 +156,11 @@ bool CommSerial::setupTermios()
 {
     termios tio {};
     if (tcgetattr(fd_, &tio) != 0) {
-        emit errorOccurred(QString("tcgetattr failed: %1")
-                               .arg(QString::fromLocal8Bit(strerror(errno))));
+        emit errorOccurred(sysErrStr("tcgetattr failed: %1"));
         return false;
     }
 
-    // raw mode（也可以用 cfmakeraw，但我们手动更可控）
+    // raw mode
     tio.c_iflag &= ~(IGNBRK | BRKINT | PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON | IXOFF | IXANY);
     tio.c_oflag &= ~OPOST;
     tio.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
@@ -197,7 +194,7 @@ bool CommSerial::setupTermios()
         tio.c_iflag |= INPCK;
     }
 
-    // 关闭硬件流控（如需 RTS/CTS 再打开）
+    // 关闭硬件流控
 #ifdef CRTSCTS
     tio.c_cflag &= ~CRTSCTS;
 #endif
@@ -230,9 +227,6 @@ bool CommSerial::setupRs485IfNeeded()
 #ifdef __linux__
     serial_rs485 rs485 {};
     rs485.flags |= SER_RS485_ENABLED;
-
-    // 常见需求：发送时 RTS 有效（驱动用于 DE 控制），发送完毕自动释放
-    // 有的硬件/驱动极性相反，需要用 SER_RS485_RTS_ON_SEND / SER_RS485_RTS_AFTER_SEND 调整
     rs485.flags |= SER_RS485_RTS_ON_SEND;
     rs485.flags &= ~SER_RS485_RTS_AFTER_SEND;
 

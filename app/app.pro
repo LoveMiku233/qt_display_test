@@ -1,4 +1,4 @@
-QT       += core gui serialport
+QT       += core gui
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -8,9 +8,6 @@ TARGET = qt_display_yk_1
 INCLUDEPATH += $$PWD/..
 
 SOURCES += \
-    ../comm/base/comm_adapter.cpp \
-    ../comm/comm_serial.cpp \
-    ../device/base/device_adapter.cpp \
     ../main.cpp \
     ../pages/comm_page.cpp \
     ../pages/ctrl_page.cpp \
@@ -22,9 +19,6 @@ SOURCES += \
     ../widget/card_widget.cpp
 
 HEADERS += \
-    ../comm/base/comm_adapter.h \
-    ../comm/comm_serial.h \
-    ../device/base/device_adapter.h \
     ../pages/comm_page.h \
     ../pages/ctrl_page.h \
     ../pages/debug_page.h \
