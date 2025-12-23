@@ -1,6 +1,7 @@
 QT += core network
-CONFIG += console c++11
+CONFIG += qt c++11 console
 CONFIG -= app_bundle
+
 TEMPLATE = app
 TARGET = core_server
 
@@ -8,17 +9,28 @@ INCLUDEPATH += $$PWD/..
 
 SOURCES += \
     ../utils/utils.cpp\
+    ../config/system_settings.cpp \
     ../comm/base/comm_adapter.cpp \
     ../comm/comm_serial.cpp \
     ../comm/comm_can.cpp \
     ../device/base/device_adapter.cpp \
+    ../device/can/device_relay_can_f427.cpp \
+    ../device/can/can_device_manager.cpp \
     ../rpc/json_rpc_dispatcher.cpp \
+    ../rpc/json_rpc_server.cpp \
     core_main.cpp
 
 HEADERS += \
     ../utils/utils.h\
+    ../config/system_settings.h \
     ../comm/base/comm_adapter.h \
     ../comm/comm_serial.h \
     ../comm/comm_can.h \
-    ../rpc/json_rpc_dispatcher.h \
     ../device/base/device_adapter.h \
+    ../device/can/i_can_device.h \
+    ../device/can/relay_can_protocol.h \
+    ../device/can/device_relay_can_f427.h \
+    ../device/can/can_device_manager.h \
+    ../rpc/rpc_error_codes.h \
+    ../rpc/json_rpc_dispatcher.h \
+    ../rpc/json_rpc_server.h
