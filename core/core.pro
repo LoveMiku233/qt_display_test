@@ -18,6 +18,9 @@ SOURCES += \
     ../device/can/can_device_manager.cpp \
     ../rpc/json_rpc_dispatcher.cpp \
     ../rpc/json_rpc_server.cpp \
+    ../rpc/rpc_helpers.cpp \
+    ../rpc/rpc_registry.cpp \
+    core_context.cpp \
     core_main.cpp
 
 HEADERS += \
@@ -33,4 +36,7 @@ HEADERS += \
     ../device/can/can_device_manager.h \
     ../rpc/rpc_error_codes.h \
     ../rpc/json_rpc_dispatcher.h \
-    ../rpc/json_rpc_server.h
+    ../rpc/json_rpc_server.h \
+    ../rpc/rpc_registry.h \
+    ../rpc/rpc_helpers.h \
+    core_context.h
