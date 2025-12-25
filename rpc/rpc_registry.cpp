@@ -3,6 +3,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QDateTime>
 
 #include "rpc/json_rpc_dispatcher.h"
 #include "rpc/rpc_helpers.h"
@@ -181,6 +182,45 @@ void RpcRegistry::registerRelay()
             {"currentA", double(st.currentA)},
             {"mode", int(RelayCanProtocol::modeBits(st.statusByte))},
             {"phaseLost", RelayCanProtocol::phaseLost(st.statusByte)},
+        };
+    });
+
+    disp_->registerMethod("relay.statusAll", [&](const QJsonObject& p){
+        quint8 node = 0;
+        if (!RpcHelpers::getU8(p, "node", node))
+            return RpcHelpers::err(RpcError::MissingParameter, "missing/invalid node");
+
+        auto* dev = ctx_->relays.value(node, nullptr);
+        if (!dev)
+            return RpcHelpers::err(RpcError::BadParameterValue, "unknown node");
+
+        QJsonArray channels;
+        for (quint8 ch = 0; ch < 4; ++ch) {
+            const auto st = dev->lastStatus(ch);
+
+            QJsonObject o;
+            o["ch"] = int(ch);
+            o["channel"] = int(st.channel);
+            o["statusByte"] = int(st.statusByte);
+            o["currentA"] = double(st.currentA);
+            o["mode"] = int(RelayCanProtocol::modeBits(st.statusByte));
+            o["phaseLost"] = RelayCanProtocol::phaseLost(st.statusByte);
+
+            channels.append(o);
+        }
+
+        const qint64 now = QDateTime::currentMSecsSinceEpoch();
+        const qint64 last = dev->lastSeenMs();
+        const qint64 ageMs = (last > 0) ? (now - last) : (std::numeric_limits<qint64>::max());
+
+        const bool online = (ageMs <= 30000);
+
+        return QJsonObject{
+            {"ok", true},
+            {"node", int(node)},
+            {"online", online},
+            {"ageMs", double(ageMs)},
+            {"channels", channels},
         };
     });
 

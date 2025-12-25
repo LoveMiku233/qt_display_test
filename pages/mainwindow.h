@@ -38,6 +38,9 @@ private:
     Ui::MainWindow *ui;
     PageIndex page_id = PAGE_HOME;
 
+    // rpc
+    JsonRpcClient* rpc_;
+
     // widgets
     CommPage *comm_page;
     CtrlPage *ctrl_page;

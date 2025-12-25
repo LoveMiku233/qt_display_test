@@ -7,18 +7,27 @@ namespace Ui {
 class CtrlPage;
 }
 
+class DeviceCardWidget;
+class JsonRpcClient;
 
 class CtrlPage : public QWidget
 {
     Q_OBJECT
 public:
     explicit CtrlPage(QWidget *parent = nullptr);
+
     ~CtrlPage();
 
 private:
-    Ui::CtrlPage *ui;
+    void loadCards();
+    void refreshCards();
 
-signals:
+    Ui::CtrlPage *ui;
+    JsonRpcClient* rpc_ = nullptr;
+    QList<DeviceCardWidget*> cards_;
+
+    int refreshIndex_ = 0;
+    bool refreshInFlight_ = false;   // 防止上一条没回来又发
 
 };
 

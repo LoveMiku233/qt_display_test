@@ -25,13 +25,6 @@ public:
 
 private:
     Ui::HomePage *ui;
-    // Group
-    QVector<CardWidget*> device_cards;
-    QVector<CardWidget*> env_cards;
-
-#ifdef HOME_PAGE_CARD_TEST
-    void testAddCardWidget(const QString& title, const QString& value, const QPixmap& icon);
-#endif
 
 signals:
 

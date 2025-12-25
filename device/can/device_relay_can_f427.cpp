@@ -2,6 +2,7 @@
 #include "comm/comm_can.h"
 
 #include <QtGlobal>
+#include <QDateTime>
 
 
 RelayCanDeviceGD427::RelayCanDeviceGD427(quint8 nodeId, CommCan* bus, QObject* parent)
@@ -27,11 +28,21 @@ void RelayCanDeviceGD427::poll()
     ch = (ch + 1) % 4;
 }
 
+
 QString RelayCanDeviceGD427::name() const
 {
     return QString("RelayCanDevice(nodeId=0x%1)").arg(nodeId_, 2, 16, QLatin1Char('0')).toUpper();
 }
 
+void RelayCanDeviceGD427::markSeen()
+{
+    lastSeenMs_ = QDateTime::currentMSecsSinceEpoch();
+}
+
+qint64 RelayCanDeviceGD427::lastSeenMs() const
+{
+    return lastSeenMs_;
+}
 
 bool RelayCanDeviceGD427::control(quint8 channel, RelayCanProtocol::Action action)
 {
@@ -70,6 +81,9 @@ void RelayCanDeviceGD427::onStatusFrame(quint32 canId, const QByteArray& payload
     if (st.channel > 3) return;
 
     st_[st.channel] = st;
+
+    markSeen();
+
     lastRx_.restart();
 
     emit statusUpdated(st.channel, st);

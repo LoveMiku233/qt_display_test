@@ -26,6 +26,11 @@ public:
     bool control(quint8 channel, RelayCanProtocol::Action action);
     bool query(quint8 channel);
 
+
+    void markSeen();
+    qint64 lastSeenMs() const;
+
+
     void onStatusFrame(quint32 canId, const QByteArray& payload);
     RelayCanProtocol::Status lastStatus(quint8 channel) const;
 
@@ -42,6 +47,8 @@ private:
     CommCan* bus_; // ext
     RelayCanProtocol::Status st_[4]{};
     QElapsedTimer lastRx_;
+
+    qint64 lastSeenMs_ = 0;
 };
 
 #endif // DEVICE_RELAY_CAN_F427_H

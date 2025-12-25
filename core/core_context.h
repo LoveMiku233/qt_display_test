@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QHash>
+#include "core/core_config.h"
 
 // per def
 class SystemSettings;
@@ -19,6 +20,7 @@ public:
     explicit CoreContext(QObject* parent = nullptr);
     // init system, dev, can, serial
     bool init();
+    bool init(const CoreConfig& cfg);
     // get method groups
     QStringList methodGroups() const;
     SystemSettings* sys = nullptr;
@@ -39,7 +41,9 @@ public:
 private:
     bool initSystemSettings();
     bool initCan();
-    bool initDevices();
+
+    bool initDevices();     // OLD TEST
+    bool initDevices(const CoreConfig& cfg);
 };
 
 #endif // CORE_CONTEXT_H

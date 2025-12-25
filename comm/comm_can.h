@@ -3,10 +3,11 @@
 
 #include <QObject>
 #include <QSocketNotifier>
-#include <QString>
-#include <QByteArray>
+#include <QTimer>
+#include <QQueue>
 
 #include "base/comm_adapter.h"
+#include <linux/can.h>
 
 struct CanConfig {
     QString ifname = "can0";
@@ -33,12 +34,19 @@ signals:
 
 private slots:
     void onReadable();
+    void onTxPump();
 
 private:
     CanConfig cfg_;
     int s_ = -1;
     QSocketNotifier* rd_ = nullptr;
 
+    struct TxItem { struct can_frame frame; };
+    QQueue<TxItem> txq_;
+    QTimer* txTimer_ = nullptr;
+    int txBackoffMs_ = 0;
+
+    int txMaxQueue_ = 512;   // 队列上限，防止爆内存（可调）
 };
 
 #endif // COMM_CAN_H

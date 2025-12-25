@@ -68,6 +68,15 @@ bool CommCan::open()
         return false;
     }
 
+    if (!txTimer_) {
+        txTimer_ = new QTimer(this);
+        txTimer_->setSingleShot(false);
+        txTimer_->setInterval(2); // 每 2ms 尝试发一帧（可调：1~10ms）
+        connect(txTimer_, &QTimer::timeout, this, &CommCan::onTxPump);
+    }
+    txBackoffMs_ = 0;
+    txTimer_->start();
+
     // 5. with the qt event loop
     rd_ = new QSocketNotifier(s_, QSocketNotifier::Read, this);
     connect(rd_, &QSocketNotifier::activated, this, &CommCan::onReadable);
@@ -91,37 +100,73 @@ void CommCan::close()
         s_ = -1;
     }
 
+    if (txTimer_) txTimer_->stop();
+    txq_.clear();
+    txBackoffMs_ = 0;
+
     emit closed();
 }
 
-bool CommCan::sendFrame(quint32 canId, const QByteArray &payload, bool extended, bool rtr) {
-    // s_ not init
+bool CommCan::sendFrame(quint32 canId, const QByteArray &payload, bool extended, bool rtr)
+{
     if (s_ < 0) {
         emit errorOccurred("Can not opened");
-		return false;
+        return false;
     }
     if (payload.size() > 8) {
         emit errorOccurred("Can payload must be <= 8 bytes");
         return false;
     }
 
+    if (txq_.size() >= txMaxQueue_) {
+        emit errorOccurred(QString("CAN tx queue overflow (%1), dropping").arg(txq_.size()));
+        return false;
+    }
+
     struct can_frame frame {};
     frame.can_id = canId;
     if (extended) frame.can_id |= CAN_EFF_FLAG;
-    if (rtr) 	  frame.can_id |= CAN_RTR_FLAG;
+    if (rtr)      frame.can_id |= CAN_RTR_FLAG;
 
     frame.can_dlc = static_cast<__u8>(payload.size());
     if (!payload.isEmpty()) {
         ::memcpy(frame.data, payload.constData(), size_t(payload.size()));
     }
-    const ssize_t n = ::write(s_, &frame, sizeof(frame));
-    if (n != sizeof(frame)) {
-        emit errorOccurred(sysErrStr("CAN write failed"));
-        return false;
-    }
-    return true;
+
+    txq_.enqueue(TxItem{frame});
+    return true; // 入队成功
 }
 
+void CommCan::onTxPump()
+{
+    if (s_ < 0) return;
+    if (txq_.isEmpty()) return;
+
+    if (txBackoffMs_ > 0) {
+        txBackoffMs_ -= txTimer_->interval();
+        if (txBackoffMs_ < 0) txBackoffMs_ = 0;
+        return;
+    }
+
+    const TxItem item = txq_.head();
+    errno = 0;
+    const ssize_t n = ::write(s_, &item.frame, sizeof(item.frame));
+    if (n == sizeof(item.frame)) {
+        txq_.dequeue();
+        return;
+    }
+
+    // n != sizeof(frame)
+    if (errno == ENOBUFS || errno == EAGAIN || errno == EWOULDBLOCK) {
+        // 内核队列满
+        txBackoffMs_ = 10;
+        return;
+    }
+
+    // 其他错误：丢掉这一帧
+    emit errorOccurred(sysErrStr("CAN write failed"));
+    txq_.dequeue();
+}
 
 int64_t CommCan::wirteBytes(const QByteArray& data)
 {

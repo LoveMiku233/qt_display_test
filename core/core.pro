@@ -20,6 +20,7 @@ SOURCES += \
     ../rpc/json_rpc_server.cpp \
     ../rpc/rpc_helpers.cpp \
     ../rpc/rpc_registry.cpp \
+    core_config.cpp \
     core_context.cpp \
     core_main.cpp
 
@@ -29,6 +30,7 @@ HEADERS += \
     ../comm/base/comm_adapter.h \
     ../comm/comm_serial.h \
     ../comm/comm_can.h \
+    ../device/device_list.h \
     ../device/base/device_adapter.h \
     ../device/can/i_can_device.h \
     ../device/can/relay_can_protocol.h \
@@ -39,4 +41,5 @@ HEADERS += \
     ../rpc/json_rpc_server.h \
     ../rpc/rpc_registry.h \
     ../rpc/rpc_helpers.h \
-    core_context.h
+    core_config.h \
+    core_context.h\

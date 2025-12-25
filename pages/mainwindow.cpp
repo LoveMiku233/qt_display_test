@@ -6,12 +6,20 @@
 #include <QScreen>
 #include <QStyle>
 
+#include "rpc/json_rpc_client.h"
+#include "app_context.h"
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    // ui->setupUi(this);
-    // initUi();
+    ui->setupUi(this);
+    // rpc client
+    rpc_ = AppContext::instance().rpc();
+    rpc_->setEndpoint("127.0.0.1", 12345);
+    rpc_->connectToServer();
+
+    initUi();
 }
 
 void MainWindow::initUi() {
@@ -22,12 +30,12 @@ void MainWindow::initUi() {
     setting_page = new SettingPage(this);
 
     // init stackedwidget
-    ui->stackedWidget->addWidget(home_page);
-    ui->stackedWidget->addWidget(ctrl_page);
-    ui->stackedWidget->addWidget(setting_page);
-    ui->stackedWidget->addWidget(comm_page);
-    ui->stackedWidget->addWidget(log_page);
-    ui->stackedWidget->setCurrentIndex(PAGE_HOME);
+    ui->contentStackedWidget->addWidget(home_page);
+    ui->contentStackedWidget->addWidget(ctrl_page);
+    ui->contentStackedWidget->addWidget(setting_page);
+    ui->contentStackedWidget->addWidget(comm_page);
+    ui->contentStackedWidget->addWidget(log_page);
+    ui->contentStackedWidget->setCurrentIndex(PAGE_HOME);
 
     // bind btn
     connect(ui->btnMain, &QPushButton::clicked, this, [=]{
@@ -59,10 +67,10 @@ void MainWindow::initUi() {
 }
 
 void MainWindow::setPage(int id) {
-    if (id < 0 || id >= ui->stackedWidget->count())
+    if (id < 0 || id >= ui->contentStackedWidget->count())
             return;
 
-    ui->stackedWidget->setCurrentIndex(id);
+    ui->contentStackedWidget->setCurrentIndex(id);
     page_id = static_cast<PageIndex>(id);
     // TODO : log add
     qDebug() << "[Debug] MainWindow::setPage = " << id;

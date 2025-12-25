@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui network
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -16,7 +16,10 @@ SOURCES += \
     ../pages/log_page.cpp \
     ../pages/mainwindow.cpp \
     ../pages/setting_page.cpp \
-    ../widget/card_widget.cpp
+    ../widget/device_dialog.cpp \
+    ../widget/card_widget.cpp  \
+    ../rpc/json_rpc_client.cpp \
+    app_context.cpp
 
 HEADERS += \
     ../pages/comm_page.h \
@@ -26,7 +29,10 @@ HEADERS += \
     ../pages/log_page.h \
     ../pages/mainwindow.h \
     ../pages/setting_page.h \
-    ../widget/card_widget.h
+    ../widget/device_dialog.h \
+    ../widget/card_widget.h   \
+    ../rpc/json_rpc_client.h \
+    app_context.h
 
 FORMS += \
     ../ui/ctrl_page.ui \
