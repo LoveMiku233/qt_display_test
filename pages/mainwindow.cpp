@@ -57,15 +57,16 @@ namespace AppStyle {
     // 图标常量
     const QString ICON_TIME = QString::fromUtf8("⏰");  // 时间图标
     
-    // 导航按钮样式模板
+    // 导航按钮样式模板 - 增大字体并优化样式
     const QString NAV_BUTTON_STYLE = R"(
         QPushButton {
             background-color: transparent;
             color: %1;
             border: none;
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-size: 13px;
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-size: 15px;
+            font-weight: 500;
             text-align: left;
         }
         QPushButton:hover {
