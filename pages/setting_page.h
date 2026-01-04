@@ -17,6 +17,8 @@ public:
 
 private:
     Ui::SettingPage *ui;
+    
+    void loadDeviceList();
 
 };
 

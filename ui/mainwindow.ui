@@ -104,6 +104,20 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="btnGroup">
+         <property name="text">
+          <string>设备组</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnAutoCtrl">
+         <property name="text">
+          <string>自动控制</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="btnComm">
          <property name="text">
           <string>通讯状态</string>

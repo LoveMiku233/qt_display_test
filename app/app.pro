@@ -16,6 +16,8 @@ SOURCES += \
     ../pages/log_page.cpp \
     ../pages/mainwindow.cpp \
     ../pages/setting_page.cpp \
+    ../pages/group_page.cpp \
+    ../pages/auto_ctrl_page.cpp \
     ../widget/device_dialog.cpp \
     ../widget/card_widget.cpp  \
     ../rpc/json_rpc_client.cpp \
@@ -29,6 +31,8 @@ HEADERS += \
     ../pages/log_page.h \
     ../pages/mainwindow.h \
     ../pages/setting_page.h \
+    ../pages/group_page.h \
+    ../pages/auto_ctrl_page.h \
     ../widget/device_dialog.h \
     ../widget/card_widget.h   \
     ../rpc/json_rpc_client.h \
@@ -41,6 +45,8 @@ FORMS += \
     ../ui/comm_page.ui \
     ../ui/log_page.ui \
     ../ui/setting_page.ui \
+    ../ui/group_page.ui \
+    ../ui/auto_ctrl_page.ui \
     ../ui/debug_page.ui
 
 DISTFILES += \

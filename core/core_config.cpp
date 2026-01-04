@@ -109,6 +109,30 @@ bool CoreConfig::loadFromFile(const QString& path, QString* err)
         }
     }
 
+    // groups (array)
+    groups_.clear();
+    if (root.contains("groups") && root["groups"].isArray()) {
+        const auto arr = root["groups"].toArray();
+        for (const auto& v : arr) {
+            if (!v.isObject()) continue;
+            const auto o = v.toObject();
+
+            DeviceGroupConfig g;
+            g.groupId = o.value("groupId").toInt(0);
+            g.name = o.value("name").toString();
+            g.enabled = o.value("enabled").toBool(true);
+            
+            if (o.contains("devices") && o["devices"].isArray()) {
+                const auto devArr = o["devices"].toArray();
+                for (const auto& dv : devArr) {
+                    g.deviceNodes.append(dv.toInt());
+                }
+            }
+
+            groups_.append(g);
+        }
+    }
+
     return true;
 }
 
@@ -142,6 +166,24 @@ bool CoreConfig::saveToFile(const QString& path, QString* err) const
         devArr.append(o);
     }
     root["devices"] = devArr;
+
+    // groups
+    QJsonArray groupArr;
+    for (const auto& g : groups_) {
+        QJsonObject o;
+        o["groupId"] = g.groupId;
+        o["name"] = g.name;
+        o["enabled"] = g.enabled;
+        
+        QJsonArray devNodes;
+        for (int nodeId : g.deviceNodes) {
+            devNodes.append(nodeId);
+        }
+        o["devices"] = devNodes;
+        
+        groupArr.append(o);
+    }
+    root["groups"] = groupArr;
 
     QJsonDocument doc(root);
     const QByteArray data = doc.toJson(QJsonDocument::Indented);
