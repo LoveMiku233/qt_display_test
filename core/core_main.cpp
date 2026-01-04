@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     QString err;
     bool configLoaded = cfg.loadFromFile(cfgPath, &err);
 
-    // 2) 使用配置初始化日志系统
+    // 2) 使用配置初始化日志系统（配置加载失败时使用makeDefault的默认值）
     const QString logPath = cfg.log_.logToFile ? cfg.log_.logFilePath : QString();
     const LogLevel logLevel = static_cast<LogLevel>(cfg.log_.logLevel);
     Logger::instance().init(logPath, logLevel, cfg.log_.logToConsole);

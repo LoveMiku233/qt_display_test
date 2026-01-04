@@ -99,7 +99,7 @@ QString Logger::formatMessage(LogLevel level, const QString& source, const QStri
     const QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz");
     return QString("[%1] [%2] [%3] %4")
         .arg(timestamp)
-        .arg(levelToString(level), -4)
+        .arg(levelToString(level), -6)  // 使用-6宽度以适应中文字符
         .arg(source)
         .arg(message);
 }

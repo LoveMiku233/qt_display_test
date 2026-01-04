@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QStandardPaths>
 #include <QFileInfo>
+#include <QCoreApplication>
 
 /**
  * @brief 写入文本文件
@@ -66,8 +67,8 @@ AppConfig AppConfig::makeDefault()
  */
 QString AppConfig::defaultConfigPath()
 {
-    // 优先使用应用程序目录下的配置文件
-    const QString appDir = QDir::currentPath();
+    // 使用应用程序目录以获得可靠的路径
+    const QString appDir = QCoreApplication::applicationDirPath();
     return appDir + "/config/app_config.json";
 }
 

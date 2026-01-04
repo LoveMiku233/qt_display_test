@@ -10,6 +10,7 @@
 #include <QParallelAnimationGroup>
 #include <QMap>
 #include <QTimer>
+#include <QTime>
 #include <QDateTime>
 
 #include "rpc/json_rpc_client.h"
@@ -52,6 +53,9 @@ namespace AppStyle {
     const QString SUCCESS_COLOR = "#27ae60";        // 成功/正常
     const QString WARNING_COLOR = "#f39c12";        // 警告
     const QString ERROR_COLOR = "#e74c3c";          // 错误
+    
+    // 图标常量
+    const QString ICON_TIME = QString::fromUtf8("⏰");  // 时间图标
     
     // 导航按钮样式模板
     const QString NAV_BUTTON_STYLE = R"(
@@ -113,7 +117,10 @@ void MainWindow::startTimeUpdater()
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, [this]() {
         if (ui->labTime) {
-            const QString timeStr = QDateTime::currentDateTime().toString("⏰ HH:mm:ss");
+            // 使用QTime更高效地获取当前时间
+            const QString timeStr = QString("%1 %2")
+                .arg(AppStyle::ICON_TIME)
+                .arg(QTime::currentTime().toString("HH:mm:ss"));
             ui->labTime->setText(timeStr);
         }
     });
@@ -121,7 +128,9 @@ void MainWindow::startTimeUpdater()
     
     // 立即更新一次
     if (ui->labTime) {
-        const QString timeStr = QDateTime::currentDateTime().toString("⏰ HH:mm:ss");
+        const QString timeStr = QString("%1 %2")
+            .arg(AppStyle::ICON_TIME)
+            .arg(QTime::currentTime().toString("HH:mm:ss"));
         ui->labTime->setText(timeStr);
     }
 }
