@@ -5,6 +5,7 @@
 
 #include <QJsonObject>
 #include <QMessageBox>
+#include <QDateTime>
 
 AutoCtrlPage::AutoCtrlPage(QWidget *parent)
     : QWidget(parent)
@@ -70,7 +71,11 @@ void AutoCtrlPage::onAutoTick() {
     // In a real implementation, this would contain the actual control logic
     
     auto* rpc = AppContext::instance().rpc();
-    if (!rpc) return;
+    if (!rpc) {
+        ui->labelStatus->setText("状态: RPC未连接");
+        onStopAuto();
+        return;
+    }
 
     // Example: Query relay nodes
     auto resp = rpc->call("relay.nodes", QJsonObject());
@@ -82,6 +87,12 @@ void AutoCtrlPage::onAutoTick() {
         QString statusText = QString("自动控制运行中 - 检测到 %1 个设备节点")
                                  .arg(nodes.size());
         ui->labelStatus->setText(statusText);
+        
+        QString logEntry = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+                          QString(" - 检测到 %1 个设备").arg(nodes.size());
+        ui->textLog->append(logEntry);
+    } else {
+        ui->labelStatus->setText("状态: 查询失败");
     }
     
     // Add your automatic control logic here

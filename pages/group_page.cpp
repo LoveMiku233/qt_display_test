@@ -34,7 +34,10 @@ void GroupPage::loadGroups() {
     ui->listGroups->clear();
     
     auto* rpc = AppContext::instance().rpc();
-    if (!rpc) return;
+    if (!rpc) {
+        ui->labelStatus->setText("RPC未连接");
+        return;
+    }
 
     auto resp = rpc->call("group.list", QJsonObject());
     if (resp.contains("error")) {
