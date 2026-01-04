@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QAbstractAnimation>
 #include "pages/comm_page.h"
 #include "pages/ctrl_page.h"
 #include "pages/home_page.h"
@@ -35,15 +36,25 @@ public:
 
 
     void initUi();
-    // set page
+    // set page with animation
     void setPage(int id);
+    // apply modern styles
+    void applyStyles();
 
 private:
+    // animate page transition
+    void animatePageTransition(QWidget* from, QWidget* to, int newIndex);
+    // update navigation button checked states
+    void updateNavButtonStates(int activePageId);
+    
     Ui::MainWindow *ui;
     PageIndex page_id = PAGE_HOME;
 
     // rpc
     JsonRpcClient* rpc_;
+    
+    // animation
+    QAbstractAnimation* pageTransitionAnim_;
 
     // widgets
     CommPage *comm_page;

@@ -1,1 +1,18 @@
 /build/
+/build_core/
+*.o
+*.moc
+moc_*.cpp
+moc_*.h
+ui_*.h
+*.pro.user.*
+Makefile
+Makefile.*
+*.qm
+*.user
+.qmake.stash
+
+# Binary executables
+app/qt_display_yk_1
+core/core_server
+tests/tests

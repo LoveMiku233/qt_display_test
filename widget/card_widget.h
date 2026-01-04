@@ -4,6 +4,7 @@
 #include <QFrame>
 
 class QLabel;
+class QGraphicsDropShadowEffect;
 
 struct RelayStatusUi {
     bool ok = false;
@@ -14,6 +15,12 @@ struct RelayStatusUi {
     bool phaseLost = false;
 };
 
+/**
+ * @brief A modern, animated device card widget
+ * 
+ * Displays device information with hover and click animations,
+ * drop shadow effects, and modern styling.
+ */
 class DeviceCardWidget : public QFrame
 {
     Q_OBJECT
@@ -30,12 +37,20 @@ signals:
 
 protected:
     void mousePressEvent(QMouseEvent* e) override;
+    void mouseReleaseEvent(QMouseEvent* e) override;
+    void enterEvent(QEvent* e) override;
+    void leaveEvent(QEvent* e) override;
 
 private:
+    void animateShadow(int targetBlur, int duration);
+    
     int nodeId_ = 0;
     QLabel* title_ = nullptr;
     QLabel* line1_ = nullptr;
     QLabel* line2_ = nullptr;
+    QGraphicsDropShadowEffect* shadowEffect_ = nullptr;
+    bool isHovered_ = false;
+    bool isPressed_ = false;
 };
 
 #endif // CARD_WIDGET_H

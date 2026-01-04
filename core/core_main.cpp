@@ -9,6 +9,10 @@
 
 #include "core/core_context.h"
 #include "core/core_config.h"
+#include "utils/logger.h"
+
+static const char* LOG_SOURCE = "CoreMain";
+static const QString DEFAULT_LOG_PATH = "/var/log/fanzhou_core/core.log";
 
 static QString pickConfigPath(const QCoreApplication& app)
 {
@@ -34,48 +38,60 @@ int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
 
+    // Initialize logger
+    Logger::instance().init(DEFAULT_LOG_PATH, LogLevel::Debug);
+    LOG_INFO(LOG_SOURCE, "Core server starting...");
+
     // 1) 加载配置
     const QString cfgPath = pickConfigPath(app);
+    LOG_INFO(LOG_SOURCE, QString("Loading configuration from: %1").arg(cfgPath));
 
     CoreConfig cfg = CoreConfig::makeDefault();
     QString err;
     if (!cfg.loadFromFile(cfgPath, &err)) {
-        qWarning().noquote() << "Load config failed:" << err << "-> write default config to" << cfgPath;
+        LOG_WARNING(LOG_SOURCE, QString("Load config failed: %1 -> write default config").arg(err));
 
         QString mkErr;
         if (!ensureParentDir(cfgPath, &mkErr)) {
-            qWarning().noquote() << "Create config dir failed:" << mkErr;
+            LOG_ERROR(LOG_SOURCE, QString("Create config dir failed: %1").arg(mkErr));
         } else {
             QString err2;
             if (!cfg.saveToFile(cfgPath, &err2)) {
-                qWarning().noquote() << "Write default config failed:" << err2;
+                LOG_ERROR(LOG_SOURCE, QString("Write default config failed: %1").arg(err2));
             } else {
-                qInfo().noquote() << "Default config written to" << cfgPath;
+                LOG_INFO(LOG_SOURCE, QString("Default config written to: %1").arg(cfgPath));
             }
         }
+    } else {
+        LOG_INFO(LOG_SOURCE, "Configuration loaded successfully");
     }
 
     CoreContext ctx;
+    LOG_INFO(LOG_SOURCE, "Initializing CoreContext...");
     if (!ctx.init(cfg)) {
-        qCritical() << "CoreContext init failed";
+        LOG_CRITICAL(LOG_SOURCE, "CoreContext init failed");
         return 1;
     }
+    LOG_INFO(LOG_SOURCE, "CoreContext initialized successfully");
 
     // 3) 注册 RPC 方法
+    LOG_INFO(LOG_SOURCE, "Registering RPC methods...");
     JsonRpcDispatcher dispatcher;
     RpcRegistry reg(&ctx, &dispatcher);
     reg.registerAll();
+    LOG_INFO(LOG_SOURCE, "RPC methods registered");
 
     // 4)
     JsonRpcServer server(&dispatcher);
     const quint16 port = ctx.rpcPort;
+    LOG_INFO(LOG_SOURCE, QString("Starting JSON-RPC server on port %1...").arg(port));
     if (!server.listen(QHostAddress::Any, port)) {
-        qCritical() << "listen failed:" << server.errorString();
+        LOG_CRITICAL(LOG_SOURCE, QString("Listen failed: %1").arg(server.errorString()));
         return 1;
     }
 
-    qInfo() << "core_main JSON-RPC listening on" << port
-            << "config =" << cfgPath;
+    LOG_INFO(LOG_SOURCE, QString("Core server started successfully. JSON-RPC listening on port %1, config=%2")
+             .arg(port).arg(cfgPath));
 
     return app.exec();
 }
