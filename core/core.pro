@@ -9,6 +9,7 @@ INCLUDEPATH += $$PWD/..
 
 SOURCES += \
     ../utils/utils.cpp\
+    ../utils/logger.cpp\
     ../config/system_settings.cpp \
     ../comm/base/comm_adapter.cpp \
     ../comm/comm_serial.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
 
 HEADERS += \
     ../utils/utils.h\
+    ../utils/logger.h\
     ../config/system_settings.h \
     ../comm/base/comm_adapter.h \
     ../comm/comm_serial.h \

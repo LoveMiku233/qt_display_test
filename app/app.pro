@@ -21,6 +21,7 @@ SOURCES += \
     ../widget/device_dialog.cpp \
     ../widget/card_widget.cpp  \
     ../rpc/json_rpc_client.cpp \
+    ../utils/animation_utils.cpp \
     app_context.cpp
 
 HEADERS += \
@@ -36,6 +37,7 @@ HEADERS += \
     ../widget/device_dialog.h \
     ../widget/card_widget.h   \
     ../rpc/json_rpc_client.h \
+    ../utils/animation_utils.h \
     app_context.h
 
 FORMS += \
