@@ -7,6 +7,8 @@
 #include "pages/home_page.h"
 #include "pages/log_page.h"
 #include "pages/setting_page.h"
+#include "pages/group_page.h"
+#include "pages/auto_ctrl_page.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,6 +19,8 @@ enum PageIndex {
     PAGE_HOME = 0,
     PAGE_CTRL,
     PAGE_SETTING,
+    PAGE_GROUP,
+    PAGE_AUTO_CTRL,
     PAGE_COMM,
     PAGE_LOG
 };
@@ -47,5 +51,7 @@ private:
     HomePage *home_page;
     LogPage *log_page;
     SettingPage *setting_page;
+    GroupPage *group_page;
+    AutoCtrlPage *auto_ctrl_page;
 };
 #endif // MAINWINDOW_H

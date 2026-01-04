@@ -28,11 +28,15 @@ void MainWindow::initUi() {
     home_page = new HomePage(this);
     log_page = new LogPage(this);
     setting_page = new SettingPage(this);
+    group_page = new GroupPage(this);
+    auto_ctrl_page = new AutoCtrlPage(this);
 
     // init stackedwidget
     ui->contentStackedWidget->addWidget(home_page);
     ui->contentStackedWidget->addWidget(ctrl_page);
     ui->contentStackedWidget->addWidget(setting_page);
+    ui->contentStackedWidget->addWidget(group_page);
+    ui->contentStackedWidget->addWidget(auto_ctrl_page);
     ui->contentStackedWidget->addWidget(comm_page);
     ui->contentStackedWidget->addWidget(log_page);
     ui->contentStackedWidget->setCurrentIndex(PAGE_HOME);
@@ -48,6 +52,14 @@ void MainWindow::initUi() {
 
     connect(ui->btnParam, &QPushButton::clicked, this, [=]{
         setPage(PAGE_SETTING);
+    });
+
+    connect(ui->btnGroup, &QPushButton::clicked, this, [=]{
+        setPage(PAGE_GROUP);
+    });
+
+    connect(ui->btnAutoCtrl, &QPushButton::clicked, this, [=]{
+        setPage(PAGE_AUTO_CTRL);
     });
 
     connect(ui->btnComm, &QPushButton::clicked, this, [=]{

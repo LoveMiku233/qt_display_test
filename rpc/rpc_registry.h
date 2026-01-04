@@ -21,6 +21,7 @@ private:
     void registerSys();
     void registerCan();
     void registerRelay();
+    void registerGroup();
 };
 
 #endif // RPC_REGISTRY_H

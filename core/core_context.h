@@ -30,6 +30,10 @@ public:
     // device reg table: nodeId -> device
     QHash<quint8, RelayCanDeviceGD427*> relays;
 
+    // device groups: groupId -> list of node IDs
+    QHash<int, QList<quint8>> deviceGroups;
+    QHash<int, QString> groupNames;
+
     QString canIfname = "can0";
     int canBitrate = 125000;
     bool tripleSampling = true;

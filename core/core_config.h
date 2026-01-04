@@ -37,6 +37,14 @@ struct MainConfig {
     quint16 rpcPort = 12345;
 };
 
+// Device group config
+struct DeviceGroupConfig {
+    int groupId = 0;
+    QString name;
+    QList<int> deviceNodes;  // list of device node IDs in this group
+    bool enabled = true;
+};
+
 class CoreConfig
 {
 public:
@@ -44,6 +52,7 @@ public:
     CommCanConfig can_;
 
     QList<DeviceConfig> devices_;
+    QList<DeviceGroupConfig> groups_;
 
     bool loadFromFile(const QString& path, QString* err=nullptr);
     bool saveToFile(const QString& path, QString* err=nullptr) const;

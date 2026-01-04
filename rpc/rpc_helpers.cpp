@@ -6,7 +6,7 @@ bool getU8(const QJsonObject& p, const char* key, quint8& out)
     if (!p.contains(key) || !p.value(key).isDouble()) return false;
     const int v = p.value(key).toInt(-1);
     if (v < 0 || v > 255) return false;
-    out = qint8(v);
+    out = quint8(v);
     return true;
 }
 

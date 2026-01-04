@@ -134,6 +134,31 @@ bool CoreContext::initDevices(const CoreConfig& cfg)
             }
         }
 
+        // Load groups
+        deviceGroups.clear();
+        groupNames.clear();
+        deviceGroups.reserve(cfg.groups_.size());
+        groupNames.reserve(cfg.groups_.size());
+        
+        for (const auto& gcfg : cfg.groups_) {
+            if (!gcfg.enabled) continue;
+            
+            QList<quint8> nodes;
+            nodes.reserve(gcfg.deviceNodes.size());
+            for (int nodeId : gcfg.deviceNodes) {
+                if (nodeId >= 1 && nodeId <= 255) {
+                    nodes.append(quint8(nodeId));
+                }
+            }
+            
+            deviceGroups.insert(gcfg.groupId, nodes);
+            groupNames.insert(gcfg.groupId, gcfg.name);
+            
+            qInfo().noquote() << "Group added: id=" << gcfg.groupId 
+                              << "name=" << gcfg.name 
+                              << "devices=" << nodes.size();
+        }
+
         return true;
     }
     // err
@@ -143,7 +168,7 @@ bool CoreContext::initDevices(const CoreConfig& cfg)
 
 QStringList CoreContext::methodGroups() const
 {
-    return {"rpc.*", "sys.*", "can.*", "relay.*"};
+    return {"rpc.*", "sys.*", "can.*", "relay.*", "group.*"};
 }
 
 
