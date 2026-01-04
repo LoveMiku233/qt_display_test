@@ -2,6 +2,7 @@
 #include "ui_setting_page.h"
 #include "app_context.h"
 #include "rpc/json_rpc_client.h"
+#include "utils/glass_style.h"
 
 #include <QMessageBox>
 #include <QJsonArray>
@@ -11,6 +12,9 @@ SettingPage::SettingPage(QWidget *parent)
     , ui(new Ui::SettingPage)
 {
     ui->setupUi(this);
+    
+    // 应用玻璃拟态风格样式
+    setStyleSheet(GlassStyle::getFullPageStyle());
     
     // Connect buttons
     connect(ui->btnSave, &QPushButton::clicked, this, [this](){

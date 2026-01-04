@@ -3,6 +3,7 @@
 
 #include "widget/card_widget.h"
 #include "widget/device_dialog.h"
+#include "utils/glass_style.h"
 
 #include <QGridLayout>
 #include <QTimer>
@@ -18,6 +19,9 @@ CtrlPage::CtrlPage(QWidget *parent)
     , ui(new Ui::CtrlPage)
 {
     ui->setupUi(this);
+
+    // 应用玻璃拟态风格样式
+    setStyleSheet(GlassStyle::getFullPageStyle() + GlassStyle::GLASS_SCROLLAREA);
 
     // get rpc
     rpc_ = AppContext::instance().rpc();

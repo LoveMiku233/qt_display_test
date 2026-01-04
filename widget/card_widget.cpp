@@ -2,8 +2,8 @@
  * @file card_widget.cpp
  * @brief 设备卡片组件实现
  * 
- * 实现现代化的设备信息卡片，支持悬停和点击动画效果，
- * 包含阴影效果和渐变背景样式。
+ * 实现玻璃拟态风格的设备信息卡片，支持悬停和点击动画效果，
+ * 包含阴影效果和半透明玻璃背景样式。
  */
 
 #include "card_widget.h"
@@ -15,59 +15,56 @@
 #include <QGraphicsOpacityEffect>
 
 /**
- * @brief 卡片样式命名空间
+ * @brief 卡片玻璃拟态样式命名空间
  * 
- * 定义卡片组件的样式常量，包括阴影配置和不同状态下的样式
+ * 定义卡片组件的玻璃拟态样式常量，包括阴影配置和不同状态下的样式
  */
 namespace CardStyle {
     // 阴影配置常量
-    const int SHADOW_BLUR_NORMAL = 15;     // 普通状态阴影模糊半径
-    const int SHADOW_BLUR_HOVER = 20;      // 悬停状态阴影模糊半径
-    const int SHADOW_BLUR_PRESSED = 8;     // 按下状态阴影模糊半径
-    const int SHADOW_OPACITY = 80;         // 阴影透明度
-    const int SHADOW_OFFSET_Y = 4;         // 阴影Y轴偏移
+    const int SHADOW_BLUR_NORMAL = 20;     // 普通状态阴影模糊半径
+    const int SHADOW_BLUR_HOVER = 30;      // 悬停状态阴影模糊半径
+    const int SHADOW_BLUR_PRESSED = 12;    // 按下状态阴影模糊半径
+    const int SHADOW_OPACITY = 60;         // 阴影透明度
+    const int SHADOW_OFFSET_Y = 6;         // 阴影Y轴偏移
     const int SHADOW_ANIM_DURATION = 150;  // 阴影动画持续时间(毫秒)
     
-    // 普通状态样式
+    // 玻璃拟态普通状态样式
     const QString CARD_NORMAL = R"(
         QFrame {
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 #2d3748, stop:1 #1a202c);
-            border-radius: 12px;
-            border: 1px solid #3d4852;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
         QLabel {
-            color: #e2e8f0;
+            color: rgba(255, 255, 255, 0.9);
             background: transparent;
             border: none;
         }
     )";
     
-    // 悬停状态样式
+    // 玻璃拟态悬停状态样式
     const QString CARD_HOVER = R"(
         QFrame {
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 #3d4a5c, stop:1 #252d3a);
-            border-radius: 12px;
-            border: 1px solid #4299e1;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            border: 1px solid rgba(79, 172, 254, 0.5);
         }
         QLabel {
-            color: #e2e8f0;
+            color: #ffffff;
             background: transparent;
             border: none;
         }
     )";
     
-    // 按下状态样式
+    // 玻璃拟态按下状态样式
     const QString CARD_PRESSED = R"(
         QFrame {
-            background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                stop:0 #252d3a, stop:1 #1a202c);
-            border-radius: 12px;
-            border: 1px solid #63b3ed;
+            background: rgba(79, 172, 254, 0.2);
+            border-radius: 16px;
+            border: 1px solid rgba(79, 172, 254, 0.6);
         }
         QLabel {
-            color: #e2e8f0;
+            color: #ffffff;
             background: transparent;
             border: none;
         }
@@ -79,7 +76,7 @@ namespace CardStyle {
  * @param nodeId 设备节点ID
  * @param parent 父控件指针
  * 
- * 创建卡片布局，设置样式和阴影效果
+ * 创建卡片布局，设置玻璃拟态样式和阴影效果
  */
 DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     : QFrame(parent), nodeId_(nodeId), isHovered_(false), isPressed_(false)
@@ -90,7 +87,7 @@ DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     setAttribute(Qt::WA_Hover, true);
     setMinimumHeight(100);
     
-    // 应用现代化样式
+    // 应用玻璃拟态样式
     setStyleSheet(CardStyle::CARD_NORMAL);
     
     // 添加阴影效果
@@ -101,16 +98,16 @@ DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     setGraphicsEffect(shadow);
     shadowEffect_ = shadow;
 
-    // 创建标题标签
+    // 创建标题标签 - 玻璃拟态风格
     title_ = new QLabel(QString("节点 %1").arg(nodeId_), this);
-    title_->setStyleSheet("font-weight:600; font-size:16px; color:#fff;");
+    title_->setStyleSheet("font-weight:600; font-size:16px; color:#ffffff;");
 
-    // 创建信息行标签
+    // 创建信息行标签 - 玻璃拟态风格
     line1_ = new QLabel("—", this);
-    line1_->setStyleSheet("font-size:13px; color:#a0aec0;");
+    line1_->setStyleSheet("font-size:13px; color:rgba(255, 255, 255, 0.7);");
     
     line2_ = new QLabel("点击查看详情", this);
-    line2_->setStyleSheet("font-size:12px; color:#718096;");
+    line2_->setStyleSheet("font-size:12px; color:rgba(255, 255, 255, 0.5);");
 
     // 设置布局
     auto* lay = new QVBoxLayout(this);

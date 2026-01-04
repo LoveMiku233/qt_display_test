@@ -3,7 +3,7 @@
  * @brief 设备控制对话框实现
  * 
  * 提供设备状态查看和控制功能的模态对话框，
- * 支持查询设备状态和发送控制命令。
+ * 支持查询设备状态和发送控制命令，采用玻璃拟态风格。
  */
 
 #include "device_dialog.h"
@@ -20,6 +20,7 @@
 
 #include "rpc/json_rpc_client.h"
 #include "utils/logger.h"
+#include "utils/glass_style.h"
 
 #include <QJsonObject>
 #include <QJsonDocument>
@@ -43,51 +44,54 @@ DeviceDialog::DeviceDialog(int nodeId, JsonRpcClient* rpc, QWidget* parent)
     
     LOG_DEBUG(LOG_SOURCE, QString("打开设备对话框，节点: %1").arg(nodeId_));
 
-    // 应用深色主题样式
-    setStyleSheet(R"(
-    QDialog { background: #0f141a; }
-    QLabel { background:#1f232a; color: #e6edf3; font-size: 14px; }
-    QPushButton { padding: 10px 14px; border-radius: 10px; background:#1f232a; color:#e6edf3; font-size: 13px; }
-    QPushButton:hover { background:#2a303a; }
-    QPushButton#danger { background:#8b1d1d; }
-    QPushButton#danger:hover { background:#a52525; }
-    QPushButton#primary { background:#1d4ed8; }
-    QPushButton#primary:hover { background:#2563eb; }
-    QFrame#card { background:#1f232a; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; }
-QComboBox {
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.12);
-  background: #1f232a;
-  color: #e6edf3;
-  font-size: 13px;
-}
-QComboBox:hover {
-  border: 1px solid rgba(80,160,255,0.9);
-}
-QComboBox::drop-down {
-  width: 26px;
-  border: 0px;
-}
-QComboBox QAbstractItemView {
-  background: #0f141a;              /* 下拉列表背景（未选中） */
-  color: #e6edf3;                   /* 下拉列表文字颜色 */
-  border: 1px solid rgba(255,255,255,0.12);
-  selection-background-color: #2563eb; /* 选中项背景色 */
-  selection-color: #ffffff;         /* 选中项文字颜色 */
-  outline: 0;
-}
-QComboBox QAbstractItemView::item {
-  padding: 8px 10px;
-}
-QComboBox QAbstractItemView::item:hover {
-  background: #2a303a;              /* 鼠标悬停项背景色 */
-}
+    // 应用玻璃拟态风格样式
+    setStyleSheet(GlassStyle::GLASS_DIALOG + GlassStyle::GLASS_COMBOBOX + 
+                  GlassStyle::GLASS_SCROLLBAR + R"(
+        QLabel { 
+            background: transparent; 
+            color: rgba(255, 255, 255, 0.9); 
+            font-size: 14px; 
+        }
+        QPushButton { 
+            padding: 10px 16px; 
+            border-radius: 10px; 
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff; 
+            font-size: 13px; 
+        }
+        QPushButton:hover { 
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        QPushButton#danger { 
+            background: rgba(239, 68, 68, 0.4);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+        }
+        QPushButton#danger:hover { 
+            background: rgba(239, 68, 68, 0.6);
+            border: 1px solid rgba(239, 68, 68, 0.7);
+        }
+        QPushButton#primary { 
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                stop:0 rgba(79, 172, 254, 0.6), stop:1 rgba(0, 242, 254, 0.4));
+            border: 1px solid rgba(79, 172, 254, 0.5);
+        }
+        QPushButton#primary:hover { 
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+                stop:0 rgba(79, 172, 254, 0.8), stop:1 rgba(0, 242, 254, 0.6));
+            border: 1px solid rgba(79, 172, 254, 0.7);
+        }
+        QFrame#card { 
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px; 
+        }
     )");
 
-    // 创建标题标签
+    // 创建标题标签 - 玻璃拟态风格
     auto* title = new QLabel(QString("设备: RelayGD427   节点: %1").arg(nodeId_), this);
-    title->setStyleSheet("font-size:16px;font-weight:700;color:#ffffff;");
+    title->setStyleSheet("font-size:16px;font-weight:700;color:#ffffff;background:transparent;");
 
     // 创建状态标签
     statusLabel_ = new QLabel("加载中...", this);
