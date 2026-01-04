@@ -4,6 +4,7 @@
 #include "rpc/json_rpc_client.h"
 
 #include <QJsonObject>
+#include <QJsonArray>
 #include <QMessageBox>
 #include <QDateTime>
 
