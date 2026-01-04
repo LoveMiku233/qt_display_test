@@ -8,6 +8,14 @@
 
 // Modern card style constants
 namespace CardStyle {
+    // Shadow configuration constants
+    const int SHADOW_BLUR_NORMAL = 15;
+    const int SHADOW_BLUR_HOVER = 20;
+    const int SHADOW_BLUR_PRESSED = 8;
+    const int SHADOW_OPACITY = 80;
+    const int SHADOW_OFFSET_Y = 4;
+    const int SHADOW_ANIM_DURATION = 150;
+    
     const QString CARD_NORMAL = R"(
         QFrame {
             background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
@@ -65,9 +73,9 @@ DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     
     // Add drop shadow effect
     auto* shadow = new QGraphicsDropShadowEffect(this);
-    shadow->setBlurRadius(15);
-    shadow->setColor(QColor(0, 0, 0, 80));
-    shadow->setOffset(0, 4);
+    shadow->setBlurRadius(CardStyle::SHADOW_BLUR_NORMAL);
+    shadow->setColor(QColor(0, 0, 0, CardStyle::SHADOW_OPACITY));
+    shadow->setOffset(0, CardStyle::SHADOW_OFFSET_Y);
     setGraphicsEffect(shadow);
     shadowEffect_ = shadow;
 
@@ -115,7 +123,7 @@ void DeviceCardWidget::mousePressEvent(QMouseEvent* e)
 {
     isPressed_ = true;
     setStyleSheet(CardStyle::CARD_PRESSED);
-    animateShadow(8, 100);
+    animateShadow(CardStyle::SHADOW_BLUR_PRESSED, CardStyle::SHADOW_ANIM_DURATION);
     QFrame::mousePressEvent(e);
 }
 
@@ -124,10 +132,10 @@ void DeviceCardWidget::mouseReleaseEvent(QMouseEvent* e)
     isPressed_ = false;
     if (isHovered_) {
         setStyleSheet(CardStyle::CARD_HOVER);
-        animateShadow(20, 150);
+        animateShadow(CardStyle::SHADOW_BLUR_HOVER, CardStyle::SHADOW_ANIM_DURATION);
     } else {
         setStyleSheet(CardStyle::CARD_NORMAL);
-        animateShadow(15, 150);
+        animateShadow(CardStyle::SHADOW_BLUR_NORMAL, CardStyle::SHADOW_ANIM_DURATION);
     }
     
     // Emit clicked only if release is within widget
@@ -143,7 +151,7 @@ void DeviceCardWidget::enterEvent(QEvent* e)
     isHovered_ = true;
     if (!isPressed_) {
         setStyleSheet(CardStyle::CARD_HOVER);
-        animateShadow(20, 150);
+        animateShadow(CardStyle::SHADOW_BLUR_HOVER, CardStyle::SHADOW_ANIM_DURATION);
     }
     QFrame::enterEvent(e);
 }
@@ -153,7 +161,7 @@ void DeviceCardWidget::leaveEvent(QEvent* e)
     isHovered_ = false;
     if (!isPressed_) {
         setStyleSheet(CardStyle::CARD_NORMAL);
-        animateShadow(15, 150);
+        animateShadow(CardStyle::SHADOW_BLUR_NORMAL, CardStyle::SHADOW_ANIM_DURATION);
     }
     QFrame::leaveEvent(e);
 }

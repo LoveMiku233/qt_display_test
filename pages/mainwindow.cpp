@@ -196,14 +196,6 @@ void MainWindow::animatePageTransition(QWidget* from, QWidget* to, int newIndex)
     auto* group = new QParallelAnimationGroup(this);
     pageTransitionAnim_ = group;
     
-    // Fade out old page (optional - can comment out for simpler transition)
-    // auto* fadeOut = new QPropertyAnimation(fromEffect, "opacity");
-    // fadeOut->setDuration(150);
-    // fadeOut->setStartValue(1.0);
-    // fadeOut->setEndValue(0.0);
-    // fadeOut->setEasingCurve(QEasingCurve::InQuad);
-    // group->addAnimation(fadeOut);
-    
     // Fade in new page
     auto* fadeIn = new QPropertyAnimation(toEffect, "opacity");
     fadeIn->setDuration(250);

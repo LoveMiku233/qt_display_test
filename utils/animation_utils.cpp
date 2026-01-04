@@ -134,56 +134,11 @@ QSequentialAnimationGroup* AnimationUtils::createClickPulse(QWidget* widget, int
     return group;
 }
 
-// Helper class for hover effect
-class HoverEventFilter : public QObject
-{
-    Q_OBJECT
-public:
-    HoverEventFilter(QWidget* widget, int growPixels, QObject* parent = nullptr)
-        : QObject(parent), widget_(widget), growPixels_(growPixels)
-    {
-        originalGeometry_ = widget->geometry();
-    }
-    
-protected:
-    bool eventFilter(QObject* obj, QEvent* event) override
-    {
-        if (obj == widget_) {
-            if (event->type() == QEvent::Enter) {
-                // Grow slightly
-                QRect grown = originalGeometry_;
-                grown.adjust(-growPixels_/2, -growPixels_/2, growPixels_/2, growPixels_/2);
-                
-                auto* anim = new QPropertyAnimation(widget_, "geometry", widget_);
-                anim->setDuration(150);
-                anim->setEndValue(grown);
-                anim->setEasingCurve(QEasingCurve::OutCubic);
-                anim->start(QAbstractAnimation::DeleteWhenStopped);
-            } else if (event->type() == QEvent::Leave) {
-                // Restore
-                auto* anim = new QPropertyAnimation(widget_, "geometry", widget_);
-                anim->setDuration(150);
-                anim->setEndValue(originalGeometry_);
-                anim->setEasingCurve(QEasingCurve::OutCubic);
-                anim->start(QAbstractAnimation::DeleteWhenStopped);
-            }
-        }
-        return QObject::eventFilter(obj, event);
-    }
-
-private:
-    QWidget* widget_;
-    int growPixels_;
-    QRect originalGeometry_;
-};
-
 void AnimationUtils::applyHoverGrowEffect(QWidget* widget, int growPixels)
 {
-    if (!widget) return;
-    
-    widget->setAttribute(Qt::WA_Hover, true);
-    auto* filter = new HoverEventFilter(widget, growPixels, widget);
-    widget->installEventFilter(filter);
+    Q_UNUSED(widget);
+    Q_UNUSED(growPixels);
+    // This function is a placeholder for future implementation.
+    // For hover effects, consider using widget-specific implementations
+    // as seen in DeviceCardWidget which uses enterEvent/leaveEvent.
 }
-
-#include "animation_utils.moc"
