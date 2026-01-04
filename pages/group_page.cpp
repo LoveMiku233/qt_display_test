@@ -41,7 +41,7 @@ void GroupPage::loadGroups() {
 
     auto resp = rpc->call("group.list", QJsonObject());
     if (!resp.isObject()) {
-        ui->labelStatus->setText("加载组失败");
+        ui->labelStatus->setText("响应格式错误");
         return;
     }
     

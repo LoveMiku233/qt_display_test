@@ -93,12 +93,11 @@ void AutoCtrlPage::onAutoTick() {
             QString logEntry = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
                               QString(" - 检测到 %1 个设备").arg(nodes.size());
             ui->textLog->append(logEntry);
-        } else {
-            ui->labelStatus->setText("状态: 查询失败");
+            return;
         }
-    } else {
-        ui->labelStatus->setText("状态: 查询失败");
     }
+    
+    ui->labelStatus->setText("状态: 查询失败");
     
     // Add your automatic control logic here
     // For example: monitor device status and take actions based on conditions
