@@ -21,7 +21,7 @@ CtrlPage::CtrlPage(QWidget *parent)
     ui->setupUi(this);
 
     // 应用玻璃拟态风格样式
-    setStyleSheet(GlassStyle::getFullPageStyle() + GlassStyle::GLASS_SCROLLAREA);
+    setStyleSheet(GlassStyle::getFullPageStyle());
 
     // get rpc
     rpc_ = AppContext::instance().rpc();

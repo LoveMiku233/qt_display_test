@@ -44,9 +44,8 @@ DeviceDialog::DeviceDialog(int nodeId, JsonRpcClient* rpc, QWidget* parent)
     
     LOG_DEBUG(LOG_SOURCE, QString("打开设备对话框，节点: %1").arg(nodeId_));
 
-    // 应用玻璃拟态风格样式
-    setStyleSheet(GlassStyle::GLASS_DIALOG + GlassStyle::GLASS_COMBOBOX + 
-                  GlassStyle::GLASS_SCROLLBAR + R"(
+    // 应用玻璃拟态风格样式 - 使用高效的字符串构建
+    static const QString DIALOG_EXTRA_STYLE = R"(
         QLabel { 
             background: transparent; 
             color: rgba(255, 255, 255, 0.9); 
@@ -87,7 +86,15 @@ DeviceDialog::DeviceDialog(int nodeId, JsonRpcClient* rpc, QWidget* parent)
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 14px; 
         }
-    )");
+    )";
+    
+    QString dialogStyle;
+    dialogStyle.reserve(4000);
+    dialogStyle.append(GlassStyle::GLASS_DIALOG);
+    dialogStyle.append(GlassStyle::GLASS_COMBOBOX);
+    dialogStyle.append(GlassStyle::GLASS_SCROLLBAR);
+    dialogStyle.append(DIALOG_EXTRA_STYLE);
+    setStyleSheet(dialogStyle);
 
     // 创建标题标签 - 玻璃拟态风格
     auto* title = new QLabel(QString("设备: RelayGD427   节点: %1").arg(nodeId_), this);

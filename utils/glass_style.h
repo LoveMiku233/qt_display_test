@@ -492,9 +492,20 @@ namespace GlassStyle {
      * @return 组合后的样式表字符串
      */
     inline QString getFullPageStyle() {
-        return PAGE_GLASS + GLASS_PANEL + GLASS_BUTTON + GLASS_INPUT + 
-               GLASS_COMBOBOX + GLASS_CHECKBOX + GLASS_LIST + GLASS_TAB + 
-               GLASS_TEXTEDIT + GLASS_SCROLLBAR + GLASS_SCROLLAREA;
+        QString style;
+        style.reserve(8000);  // Pre-allocate for efficiency
+        style.append(PAGE_GLASS);
+        style.append(GLASS_PANEL);
+        style.append(GLASS_BUTTON);
+        style.append(GLASS_INPUT);
+        style.append(GLASS_COMBOBOX);
+        style.append(GLASS_CHECKBOX);
+        style.append(GLASS_LIST);
+        style.append(GLASS_TAB);
+        style.append(GLASS_TEXTEDIT);
+        style.append(GLASS_SCROLLBAR);
+        style.append(GLASS_SCROLLAREA);
+        return style;
     }
 
 }  // namespace GlassStyle
