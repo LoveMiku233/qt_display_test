@@ -2,6 +2,12 @@
   "main": {
     "rpcPort": 12345
   },
+  "log": {
+    "logToConsole": true,
+    "logToFile": true,
+    "logFilePath": "/var/log/fanzhou_core/core.log",
+    "logLevel": 0
+  },
   "can": {
     "ifname": "can0",
     "bitrate": 125000,
