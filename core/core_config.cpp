@@ -5,27 +5,38 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-
+/**
+ * @brief 从整数转换为设备类型ID
+ */
 static DeviceTypeId deviceTypeFromInt(int v)
 {
     return static_cast<DeviceTypeId>(v);
 }
 
+/**
+ * @brief 从整数转换为通讯类型ID
+ */
 static CommTypeId commTypeFromInt(int v)
 {
     return static_cast<CommTypeId>(v);
 }
 
-
+/**
+ * @brief 写入文本文件
+ * @param path 文件路径
+ * @param data 数据内容
+ * @param err 错误信息输出
+ * @return 是否成功
+ */
 static bool writeTextFile(const QString& path, const QByteArray& data, QString* err)
 {
     QFile f(path);
     if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        if (err) *err = QString("open for write failed: %1").arg(f.errorString());
+        if (err) *err = QString("打开文件写入失败: %1").arg(f.errorString());
         return false;
     }
     if (f.write(data) != data.size()) {
-        if (err) *err = QString("write failed: %1").arg(f.errorString());
+        if (err) *err = QString("写入失败: %1").arg(f.errorString());
         return false;
     }
     return true;
@@ -34,16 +45,28 @@ static bool writeTextFile(const QString& path, const QByteArray& data, QString* 
 static int toInt(DeviceTypeId t) { return static_cast<int>(t); }
 static int toInt(CommTypeId t)   { return static_cast<int>(t); }
 
+/**
+ * @brief 生成默认配置
+ * @return 包含默认值的配置对象
+ */
 CoreConfig CoreConfig::makeDefault()
 {
     CoreConfig c;
     c.core_.rpcPort = 12345;
 
+    // CAN总线默认配置
     c.can_.canIfname = "can0";
     c.can_.canBitrate = 125000;
     c.can_.canTripleSampling = true;
     c.can_.canFd = false;
 
+    // 日志默认配置
+    c.log_.logToConsole = true;
+    c.log_.logToFile = true;
+    c.log_.logFilePath = "/var/log/fanzhou_core/core.log";
+    c.log_.logLevel = 0;
+
+    // 默认设备配置
     DeviceConfig d1;
     d1.name = "relay01";
     d1.deviceType = DeviceTypeId::RelayGD427;
@@ -56,31 +79,47 @@ CoreConfig CoreConfig::makeDefault()
     return c;
 }
 
+/**
+ * @brief 从JSON文件加载配置
+ * @param path 配置文件路径
+ * @param err 错误信息输出指针
+ * @return 加载是否成功
+ */
 bool CoreConfig::loadFromFile(const QString& path, QString* err)
 {
     QFile f(path);
     if (!f.exists()) {
-        if (err) *err = "config file not found";
+        if (err) *err = "配置文件不存在";
         return false;
     }
     if (!f.open(QIODevice::ReadOnly)) {
-        if (err) *err = QString("open failed: %1").arg(f.errorString());
+        if (err) *err = QString("打开文件失败: %1").arg(f.errorString());
         return false;
     }
 
     const auto doc = QJsonDocument::fromJson(f.readAll());
     if (!doc.isObject()) {
-        if (err) *err = "invalid json root (not object)";
+        if (err) *err = "无效的JSON根节点(非对象)";
         return false;
     }
     const QJsonObject root = doc.object();
 
+    // 读取主配置
     if (root.contains("main") && root["main"].isObject()) {
         const auto main = root["main"].toObject();
         if (main.contains("rpcPort")) core_.rpcPort = quint16(main["rpcPort"].toInt(int(core_.rpcPort)));
     }
 
-    // -------- can --------
+    // 读取日志配置
+    if (root.contains("log") && root["log"].isObject()) {
+        const auto log = root["log"].toObject();
+        if (log.contains("logToConsole")) log_.logToConsole = log["logToConsole"].toBool(log_.logToConsole);
+        if (log.contains("logToFile")) log_.logToFile = log["logToFile"].toBool(log_.logToFile);
+        if (log.contains("logFilePath")) log_.logFilePath = log["logFilePath"].toString(log_.logFilePath);
+        if (log.contains("logLevel")) log_.logLevel = log["logLevel"].toInt(log_.logLevel);
+    }
+
+    // 读取CAN总线配置
     if (root.contains("can") && root["can"].isObject()) {
         const auto can = root["can"].toObject();
         if (can.contains("ifname")) can_.canIfname = can["ifname"].toString(can_.canIfname);
@@ -89,7 +128,7 @@ bool CoreConfig::loadFromFile(const QString& path, QString* err)
         if (can.contains("canFd")) can_.canFd = can["canFd"].toBool(can_.canFd);
     }
 
-    // devices (array)
+    // 读取设备数组
     devices_.clear();
     if (root.contains("devices") && root["devices"].isArray()) {
         const auto arr = root["devices"].toArray();
@@ -109,7 +148,7 @@ bool CoreConfig::loadFromFile(const QString& path, QString* err)
         }
     }
 
-    // groups (array)
+    // 读取设备组数组
     groups_.clear();
     if (root.contains("groups") && root["groups"].isArray()) {
         const auto arr = root["groups"].toArray();
@@ -136,16 +175,30 @@ bool CoreConfig::loadFromFile(const QString& path, QString* err)
     return true;
 }
 
+/**
+ * @brief 保存配置到JSON文件
+ * @param path 配置文件路径
+ * @param err 错误信息输出指针
+ * @return 保存是否成功
+ */
 bool CoreConfig::saveToFile(const QString& path, QString* err) const
 {
     QJsonObject root;
 
-    // main
+    // 主配置
     QJsonObject main;
     main["rpcPort"] = int(core_.rpcPort);
     root["main"] = main;
 
-    // can
+    // 日志配置
+    QJsonObject log;
+    log["logToConsole"] = log_.logToConsole;
+    log["logToFile"] = log_.logToFile;
+    log["logFilePath"] = log_.logFilePath;
+    log["logLevel"] = log_.logLevel;
+    root["log"] = log;
+
+    // CAN总线配置
     QJsonObject can;
     can["ifname"] = can_.canIfname;
     can["bitrate"] = can_.canBitrate;
@@ -153,7 +206,7 @@ bool CoreConfig::saveToFile(const QString& path, QString* err) const
     can["canFd"] = can_.canFd;
     root["can"] = can;
 
-    // devices
+    // 设备列表
     QJsonArray devArr;
     for (const auto& d : devices_) {
         QJsonObject o;
@@ -167,7 +220,7 @@ bool CoreConfig::saveToFile(const QString& path, QString* err) const
     }
     root["devices"] = devArr;
 
-    // groups
+    // 设备组列表
     QJsonArray groupArr;
     for (const auto& g : groups_) {
         QJsonObject o;

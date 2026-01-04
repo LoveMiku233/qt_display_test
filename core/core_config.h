@@ -6,56 +6,106 @@
 #include <QJsonObject>
 #include "device/device_list.h"
 
-// device config struct
+/**
+ * @brief 设备配置结构体
+ * 
+ * 用于配置单个设备的参数，包括设备类型、通讯类型、节点ID等
+ */
 struct DeviceConfig {
-    QString name;
-    DeviceTypeId deviceType = DeviceTypeId::RelayGD427;
-    CommTypeId commType = CommTypeId::Can;
+    QString name;                                         // 设备名称
+    DeviceTypeId deviceType = DeviceTypeId::RelayGD427;   // 设备类型
+    CommTypeId commType = CommTypeId::Can;                // 通讯类型
 
-    // option
-    int node_id = -1;
-    QString bus = "can0";
+    // 可选参数
+    int node_id = -1;                                     // 节点ID
+    QString bus = "can0";                                 // 总线名称
 
-    QJsonObject params;
+    QJsonObject params;                                   // 扩展参数
 };
 
+/**
+ * @brief 继电器节点配置结构体
+ */
 struct RelayNodeConfig {
-    int nodeId = 1;
-    bool enabled = true;
-    int channels = 4;
-    QString name;
+    int nodeId = 1;                                       // 节点ID
+    bool enabled = true;                                  // 是否启用
+    int channels = 4;                                     // 通道数
+    QString name;                                         // 节点名称
 };
 
+/**
+ * @brief CAN总线配置结构体
+ */
 struct CommCanConfig {
-    QString canIfname = "can0";
-    int canBitrate = 125000;
-    bool canTripleSampling = true;
-    bool canFd = false;
+    QString canIfname = "can0";                           // CAN接口名称
+    int canBitrate = 125000;                              // 波特率
+    bool canTripleSampling = true;                        // 三重采样
+    bool canFd = false;                                   // 是否使用CAN FD
 };
 
+/**
+ * @brief 日志配置结构体
+ */
+struct LogConfig {
+    bool logToConsole = true;                             // 是否输出到终端
+    bool logToFile = true;                                // 是否输出到文件
+    QString logFilePath = "/var/log/fanzhou_core/core.log"; // 日志文件路径
+    int logLevel = 0;                                     // 日志级别 (0=Debug, 1=Info, 2=Warning, 3=Error, 4=Critical)
+};
+
+/**
+ * @brief 主配置结构体
+ */
 struct MainConfig {
-    quint16 rpcPort = 12345;
+    quint16 rpcPort = 12345;                              // RPC服务端口
 };
 
-// Device group config
+/**
+ * @brief 设备组配置结构体
+ */
 struct DeviceGroupConfig {
-    int groupId = 0;
-    QString name;
-    QList<int> deviceNodes;  // list of device node IDs in this group
-    bool enabled = true;
+    int groupId = 0;                                      // 组ID
+    QString name;                                         // 组名称
+    QList<int> deviceNodes;                               // 组内设备节点ID列表
+    bool enabled = true;                                  // 是否启用
 };
 
+/**
+ * @brief 核心配置类
+ * 
+ * 管理大棚控制系统的所有核心配置，包括RPC端口、CAN总线参数、
+ * 设备列表、设备组以及日志配置等
+ */
 class CoreConfig
 {
 public:
-    MainConfig core_;
-    CommCanConfig can_;
+    MainConfig core_;                                     // 主配置
+    CommCanConfig can_;                                   // CAN总线配置
+    LogConfig log_;                                       // 日志配置
 
-    QList<DeviceConfig> devices_;
-    QList<DeviceGroupConfig> groups_;
+    QList<DeviceConfig> devices_;                         // 设备列表
+    QList<DeviceGroupConfig> groups_;                     // 设备组列表
 
+    /**
+     * @brief 从文件加载配置
+     * @param path 配置文件路径
+     * @param err 错误信息输出
+     * @return 是否成功
+     */
     bool loadFromFile(const QString& path, QString* err=nullptr);
+    
+    /**
+     * @brief 保存配置到文件
+     * @param path 配置文件路径
+     * @param err 错误信息输出
+     * @return 是否成功
+     */
     bool saveToFile(const QString& path, QString* err=nullptr) const;
+    
+    /**
+     * @brief 生成默认配置
+     * @return 默认配置对象
+     */
     static CoreConfig makeDefault();
 };
 
