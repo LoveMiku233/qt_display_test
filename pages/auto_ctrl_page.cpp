@@ -80,20 +80,24 @@ void AutoCtrlPage::onAutoTick() {
     // Example: Query relay nodes
     auto resp = rpc->call("relay.nodes", QJsonObject());
     
-    if (resp.contains("result")) {
-        auto result = resp["result"].toObject();
-        auto nodes = result["nodes"].toArray();
-        
-        QString statusText = QString("自动控制运行中 - 检测到 %1 个设备节点")
-                                 .arg(nodes.size());
-        ui->labelStatus->setText(statusText);
-        
-        QString logEntry = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
-                          QString(" - 检测到 %1 个设备").arg(nodes.size());
-        ui->textLog->append(logEntry);
-    } else {
-        ui->labelStatus->setText("状态: 查询失败");
+    if (resp.isObject()) {
+        auto respObj = resp.toObject();
+        if (respObj.contains("result")) {
+            auto result = respObj["result"].toObject();
+            auto nodes = result["nodes"].toArray();
+            
+            QString statusText = QString("自动控制运行中 - 检测到 %1 个设备节点")
+                                     .arg(nodes.size());
+            ui->labelStatus->setText(statusText);
+            
+            QString logEntry = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") +
+                              QString(" - 检测到 %1 个设备").arg(nodes.size());
+            ui->textLog->append(logEntry);
+            return;
+        }
     }
+    
+    ui->labelStatus->setText("状态: 查询失败");
     
     // Add your automatic control logic here
     // For example: monitor device status and take actions based on conditions

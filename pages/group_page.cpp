@@ -40,13 +40,19 @@ void GroupPage::loadGroups() {
     }
 
     auto resp = rpc->call("group.list", QJsonObject());
-    if (resp.contains("error")) {
+    if (!resp.isObject()) {
+        ui->labelStatus->setText("响应格式错误");
+        return;
+    }
+    
+    auto respObj = resp.toObject();
+    if (respObj.contains("error")) {
         ui->labelStatus->setText("加载组失败");
         return;
     }
 
-    if (resp.contains("result")) {
-        auto result = resp["result"].toObject();
+    if (respObj.contains("result")) {
+        auto result = respObj["result"].toObject();
         auto groups = result["groups"].toArray();
         
         for (const auto& g : groups) {
@@ -76,23 +82,26 @@ void GroupPage::loadGroupDevices(int groupId) {
     if (!rpc) return;
 
     auto resp = rpc->call("group.list", QJsonObject());
-    if (resp.contains("result")) {
-        auto result = resp["result"].toObject();
-        auto groups = result["groups"].toArray();
-        
-        for (const auto& g : groups) {
-            auto group = g.toObject();
-            if (group["groupId"].toInt() == groupId) {
-                auto devices = group["devices"].toArray();
-                
-                for (const auto& d : devices) {
-                    int nodeId = d.toInt();
-                    QString itemText = QString("设备节点: %1").arg(nodeId);
-                    auto* item = new QListWidgetItem(itemText);
-                    item->setData(Qt::UserRole, nodeId);
-                    ui->listDevices->addItem(item);
+    if (resp.isObject()) {
+        auto respObj = resp.toObject();
+        if (respObj.contains("result")) {
+            auto result = respObj["result"].toObject();
+            auto groups = result["groups"].toArray();
+            
+            for (const auto& g : groups) {
+                auto group = g.toObject();
+                if (group["groupId"].toInt() == groupId) {
+                    auto devices = group["devices"].toArray();
+                    
+                    for (const auto& d : devices) {
+                        int nodeId = d.toInt();
+                        QString itemText = QString("设备节点: %1").arg(nodeId);
+                        auto* item = new QListWidgetItem(itemText);
+                        item->setData(Qt::UserRole, nodeId);
+                        ui->listDevices->addItem(item);
+                    }
+                    break;
                 }
-                break;
             }
         }
     }
@@ -120,12 +129,15 @@ void GroupPage::onCreateGroup() {
     params["name"] = name;
     
     auto resp = rpc->call("group.create", params);
-    if (resp.contains("error")) {
-        auto error = resp["error"].toObject();
-        QMessageBox::warning(this, "错误", error["message"].toString());
-    } else {
-        QMessageBox::information(this, "成功", "组创建成功");
-        loadGroups();
+    if (resp.isObject()) {
+        auto respObj = resp.toObject();
+        if (respObj.contains("error")) {
+            auto error = respObj["error"].toObject();
+            QMessageBox::warning(this, "错误", error["message"].toString());
+        } else {
+            QMessageBox::information(this, "成功", "组创建成功");
+            loadGroups();
+        }
     }
 }
 
@@ -145,13 +157,16 @@ void GroupPage::onDeleteGroup() {
     params["groupId"] = currentGroupId;
     
     auto resp = rpc->call("group.delete", params);
-    if (resp.contains("error")) {
-        auto error = resp["error"].toObject();
-        QMessageBox::warning(this, "错误", error["message"].toString());
-    } else {
-        QMessageBox::information(this, "成功", "组已删除");
-        currentGroupId = -1;
-        loadGroups();
+    if (resp.isObject()) {
+        auto respObj = resp.toObject();
+        if (respObj.contains("error")) {
+            auto error = respObj["error"].toObject();
+            QMessageBox::warning(this, "错误", error["message"].toString());
+        } else {
+            QMessageBox::information(this, "成功", "组已删除");
+            currentGroupId = -1;
+            loadGroups();
+        }
     }
 }
 
@@ -173,13 +188,16 @@ void GroupPage::onAddDevice() {
     params["node"] = nodeId;
     
     auto resp = rpc->call("group.addDevice", params);
-    if (resp.contains("error")) {
-        auto error = resp["error"].toObject();
-        QMessageBox::warning(this, "错误", error["message"].toString());
-    } else {
-        QMessageBox::information(this, "成功", "设备已添加到组");
-        loadGroupDevices(currentGroupId);
-        loadGroups(); // Refresh to update device count
+    if (resp.isObject()) {
+        auto respObj = resp.toObject();
+        if (respObj.contains("error")) {
+            auto error = respObj["error"].toObject();
+            QMessageBox::warning(this, "错误", error["message"].toString());
+        } else {
+            QMessageBox::information(this, "成功", "设备已添加到组");
+            loadGroupDevices(currentGroupId);
+            loadGroups(); // Refresh to update device count
+        }
     }
 }
 
@@ -205,13 +223,16 @@ void GroupPage::onRemoveDevice() {
     params["node"] = nodeId;
     
     auto resp = rpc->call("group.removeDevice", params);
-    if (resp.contains("error")) {
-        auto error = resp["error"].toObject();
-        QMessageBox::warning(this, "错误", error["message"].toString());
-    } else {
-        QMessageBox::information(this, "成功", "设备已从组中移除");
-        loadGroupDevices(currentGroupId);
-        loadGroups(); // Refresh to update device count
+    if (resp.isObject()) {
+        auto respObj = resp.toObject();
+        if (respObj.contains("error")) {
+            auto error = respObj["error"].toObject();
+            QMessageBox::warning(this, "错误", error["message"].toString());
+        } else {
+            QMessageBox::information(this, "成功", "设备已从组中移除");
+            loadGroupDevices(currentGroupId);
+            loadGroups(); // Refresh to update device count
+        }
     }
 }
 

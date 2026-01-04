@@ -41,13 +41,16 @@ void SettingPage::loadDeviceList() {
     if (!rpc) return;
     
     auto resp = rpc->call("relay.nodes", QJsonObject());
-    if (resp.contains("result")) {
-        auto result = resp["result"].toObject();
-        auto nodes = result["nodes"].toArray();
-        
-        for (const auto& n : nodes) {
-            int nodeId = n.toInt();
-            ui->listDevices->addItem(QString("Relay Node: %1").arg(nodeId));
+    if (resp.isObject()) {
+        auto respObj = resp.toObject();
+        if (respObj.contains("result")) {
+            auto result = respObj["result"].toObject();
+            auto nodes = result["nodes"].toArray();
+            
+            for (const auto& n : nodes) {
+                int nodeId = n.toInt();
+                ui->listDevices->addItem(QString("Relay Node: %1").arg(nodeId));
+            }
         }
     }
 }
