@@ -61,7 +61,7 @@ namespace GlassStyle {
                 stop:0 #4a5568, stop:0.5 #5a67d8, stop:1 #667eea);
         }
         QWidget {
-            font-family: "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", "Microsoft YaHei", "SimHei", "WenQuanYi Micro Hei", "Segoe UI", sans-serif;
+            font-family: "Segoe UI", "Microsoft YaHei", "SimHei", "WenQuanYi Micro Hei", "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif;
         }
     )";
     
