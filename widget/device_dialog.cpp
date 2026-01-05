@@ -3,7 +3,7 @@
  * @brief 设备控制对话框实现
  * 
  * 提供设备状态查看和控制功能的模态对话框，
- * 支持查询设备状态和发送控制命令，采用玻璃拟态风格。
+ * 支持查询设备状态和发送控制命令，采用极简留白风格。
  */
 
 #include "device_dialog.h"
@@ -37,68 +37,97 @@ static const QString LOG_SOURCE = "设备对话框";
 DeviceDialog::DeviceDialog(int nodeId, JsonRpcClient* rpc, QWidget* parent)
     : QDialog(parent), nodeId_(nodeId), rpc_(rpc)
 {
-    setWindowTitle(QString("设备: RelayGD427   节点: %1").arg(nodeId_));
+    setWindowTitle(QString("设备控制 - 节点 %1").arg(nodeId_));
 
     setModal(true);
-    resize(520, 320);
+    resize(480, 300);
     
     LOG_DEBUG(LOG_SOURCE, QString("打开设备对话框，节点: %1").arg(nodeId_));
 
-    // 应用玻璃拟态风格样式 - 使用高效的字符串构建
-    static const QString DIALOG_EXTRA_STYLE = R"(
+    // 应用极简留白风格样式
+    static const QString DIALOG_STYLE = R"(
+        QDialog {
+            background: #ffffff;
+        }
         QLabel { 
             background: transparent; 
-            color: rgba(255, 255, 255, 0.9); 
+            color: #1e293b; 
             font-size: 14px; 
         }
         QPushButton { 
             padding: 10px 16px; 
-            border-radius: 10px; 
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff; 
+            border-radius: 6px; 
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            color: #1e293b; 
             font-size: 13px; 
         }
         QPushButton:hover { 
-            background: rgba(255, 255, 255, 0.18);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
         }
         QPushButton#danger { 
-            background: rgba(239, 68, 68, 0.4);
-            border: 1px solid rgba(239, 68, 68, 0.5);
+            background: #dc2626;
+            border: none;
+            color: #ffffff;
         }
         QPushButton#danger:hover { 
-            background: rgba(239, 68, 68, 0.6);
-            border: 1px solid rgba(239, 68, 68, 0.7);
+            background: #b91c1c;
         }
         QPushButton#primary { 
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 rgba(79, 172, 254, 0.6), stop:1 rgba(0, 242, 254, 0.4));
-            border: 1px solid rgba(79, 172, 254, 0.5);
+            background: #2563eb;
+            border: none;
+            color: #ffffff;
         }
         QPushButton#primary:hover { 
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 rgba(79, 172, 254, 0.8), stop:1 rgba(0, 242, 254, 0.6));
-            border: 1px solid rgba(79, 172, 254, 0.7);
+            background: #1d4ed8;
         }
         QFrame#card { 
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 14px; 
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px; 
+        }
+        QComboBox {
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 14px;
+            min-width: 100px;
+        }
+        QComboBox:hover {
+            border: 1px solid #cbd5e1;
+        }
+        QComboBox::drop-down {
+            width: 30px;
+            border: none;
+            background: transparent;
+        }
+        QComboBox::down-arrow {
+            image: none;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 6px solid #64748b;
+            margin-right: 10px;
+        }
+        QComboBox QAbstractItemView {
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            selection-background-color: #eff6ff;
+            selection-color: #2563eb;
+            outline: 0;
+            padding: 4px;
         }
     )";
     
-    QString dialogStyle;
-    dialogStyle.reserve(4000);
-    dialogStyle.append(GlassStyle::GLASS_DIALOG);
-    dialogStyle.append(GlassStyle::GLASS_COMBOBOX);
-    dialogStyle.append(GlassStyle::GLASS_SCROLLBAR);
-    dialogStyle.append(DIALOG_EXTRA_STYLE);
-    setStyleSheet(dialogStyle);
+    setStyleSheet(DIALOG_STYLE);
 
-    // 创建标题标签 - 玻璃拟态风格
-    auto* title = new QLabel(QString("设备: RelayGD427   节点: %1").arg(nodeId_), this);
-    title->setStyleSheet("font-size:16px;font-weight:700;color:#ffffff;background:transparent;");
+    // 创建标题标签 - 极简风格
+    auto* title = new QLabel(QString("设备控制 - 节点 %1").arg(nodeId_), this);
+    title->setStyleSheet("font-size:16px;font-weight:600;color:#1e293b;background:transparent;");
 
     // 创建状态标签
     statusLabel_ = new QLabel("加载中...", this);
@@ -149,7 +178,7 @@ DeviceDialog::DeviceDialog(int nodeId, JsonRpcClient* rpc, QWidget* parent)
 
     // 主布局
     auto* root = new QVBoxLayout(this);
-    root->setContentsMargins(16, 14, 16, 14);
+    root->setContentsMargins(20, 16, 20, 16);
     root->setSpacing(12);
     root->addWidget(title);
     root->addLayout(topRow);

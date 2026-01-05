@@ -66,7 +66,7 @@
        <item>
         <widget class="QLabel" name="labTitle">
          <property name="text">
-          <string>🌱 大棚智能控制系统</string>
+          <string>大棚智能控制系统</string>
          </property>
          <property name="font">
           <font>
@@ -93,21 +93,21 @@
        <item>
         <widget class="QLabel" name="labTime">
          <property name="text">
-          <string>⏰ 12:00</string>
+          <string>12:00</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="labMode">
          <property name="text">
-          <string>🔄 自动模式</string>
+          <string>[自动]</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="labAlarm">
          <property name="text">
-          <string>✅ 系统正常</string>
+          <string>正常</string>
          </property>
         </widget>
        </item>
@@ -163,12 +163,12 @@
        <item>
         <widget class="QPushButton" name="btnMain">
          <property name="text">
-          <string>🏠 主监控</string>
+          <string>主监控</string>
          </property>
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>48</height>
+           <height>44</height>
           </size>
          </property>
         </widget>
@@ -176,12 +176,12 @@
        <item>
         <widget class="QPushButton" name="btnControl">
          <property name="text">
-          <string>⚙️ 设备控制</string>
+          <string>设备控制</string>
          </property>
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>48</height>
+           <height>44</height>
           </size>
          </property>
         </widget>
@@ -189,12 +189,12 @@
        <item>
         <widget class="QPushButton" name="btnParam">
          <property name="text">
-          <string>📋 参数设置</string>
+          <string>参数设置</string>
          </property>
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>48</height>
+           <height>44</height>
           </size>
          </property>
         </widget>
@@ -202,12 +202,12 @@
        <item>
         <widget class="QPushButton" name="btnGroup">
          <property name="text">
-          <string>📦 设备组</string>
+          <string>设备组</string>
          </property>
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>48</height>
+           <height>44</height>
           </size>
          </property>
         </widget>
@@ -215,12 +215,12 @@
        <item>
         <widget class="QPushButton" name="btnAutoCtrl">
          <property name="text">
-          <string>🤖 自动控制</string>
+          <string>自动控制</string>
          </property>
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>48</height>
+           <height>44</height>
           </size>
          </property>
         </widget>
@@ -228,12 +228,12 @@
        <item>
         <widget class="QPushButton" name="btnComm">
          <property name="text">
-          <string>📡 通讯状态</string>
+          <string>通讯状态</string>
          </property>
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>48</height>
+           <height>44</height>
           </size>
          </property>
         </widget>
@@ -241,12 +241,12 @@
        <item>
         <widget class="QPushButton" name="btnLog">
          <property name="text">
-          <string>📝 系统日志</string>
+          <string>系统日志</string>
          </property>
          <property name="minimumSize">
           <size>
            <width>0</width>
-           <height>48</height>
+           <height>44</height>
           </size>
          </property>
         </widget>

@@ -18,9 +18,6 @@
 #include "utils/animation_utils.h"
 #include "utils/glass_style.h"
 
-// 时间图标常量
-static const QString ICON_TIME = QString::fromUtf8("⏰");
-
 /**
  * @brief 主窗口构造函数
  * @param parent 父窗口指针
@@ -55,21 +52,14 @@ void MainWindow::startTimeUpdater()
     QTimer* timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, [this]() {
         if (ui->labTime) {
-            // 使用QTime更高效地获取当前时间
-            const QString timeStr = QString("%1 %2")
-                .arg(ICON_TIME)
-                .arg(QTime::currentTime().toString("HH:mm:ss"));
-            ui->labTime->setText(timeStr);
+            ui->labTime->setText(QTime::currentTime().toString("HH:mm:ss"));
         }
     });
     timer->start(1000);  // 每秒更新一次
     
     // 立即更新一次
     if (ui->labTime) {
-        const QString timeStr = QString("%1 %2")
-            .arg(ICON_TIME)
-            .arg(QTime::currentTime().toString("HH:mm:ss"));
-        ui->labTime->setText(timeStr);
+        ui->labTime->setText(QTime::currentTime().toString("HH:mm:ss"));
     }
 }
 
@@ -223,25 +213,25 @@ void MainWindow::animatePageTransition(QWidget* from, QWidget* to, int newIndex)
 }
 
 /**
- * @brief 应用玻璃拟态风格样式
+ * @brief 应用极简留白风格样式
  * 
- * 使用GlassStyle命名空间中定义的玻璃拟态样式
+ * 使用GlassStyle命名空间中定义的极简留白样式
  */
 void MainWindow::applyStyles()
 {
-    // 设置主窗口背景渐变样式
+    // 设置主窗口背景样式
     setStyleSheet(GlassStyle::MAIN_BACKGROUND);
     
-    // 设置顶栏玻璃样式
+    // 设置顶栏样式
     ui->topBar->setStyleSheet(GlassStyle::TOPBAR_GLASS);
     
-    // 设置左侧导航栏玻璃样式
+    // 设置左侧导航栏样式
     ui->menuBar->setStyleSheet(GlassStyle::SIDEBAR_GLASS);
     
-    // 设置内容区玻璃样式
+    // 设置内容区样式
     ui->contentStackedWidget->setStyleSheet(GlassStyle::CONTENT_GLASS);
     
-    // 应用导航按钮玻璃样式
+    // 应用导航按钮样式
     QList<QPushButton*> navButtons = {
         ui->btnMain, ui->btnControl, ui->btnParam,
         ui->btnGroup, ui->btnAutoCtrl, ui->btnComm, ui->btnLog
@@ -260,7 +250,7 @@ void MainWindow::applyStyles()
         ui->btnMain->setChecked(true);
     }
     
-    qDebug() << "[主窗口] 玻璃拟态风格样式已应用";
+    qDebug() << "[主窗口] 极简留白风格样式已应用";
 }
 
 /**

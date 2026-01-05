@@ -1,9 +1,10 @@
 /**
  * @file glass_style.h
- * @brief 玻璃拟态风格样式定义
+ * @brief 极简留白风格样式定义
  * 
- * 定义应用程序的玻璃拟态(Glassmorphism)视觉风格，
- * 包括半透明背景、模糊效果、柔和边框等现代UI元素。
+ * 定义应用程序的极简留白(Minimalist Whitespace)视觉风格，
+ * 采用浅色背景、清晰边框、大量留白的现代简约UI设计。
+ * 适配1024x600低分辨率屏幕和Ubuntu系统。
  */
 
 #ifndef GLASS_STYLE_H
@@ -12,120 +13,116 @@
 #include <QString>
 
 /**
- * @brief 玻璃拟态风格命名空间
+ * @brief 极简留白风格命名空间
  * 
- * 包含所有玻璃拟态风格的颜色、样式模板和辅助函数
+ * 包含所有极简风格的颜色、样式模板和辅助函数
  */
 namespace GlassStyle {
 
     // ========== 主色调 ==========
-    const QString PRIMARY_COLOR = "#4facfe";        // 主色 - 柔和蓝色
-    const QString PRIMARY_LIGHT = "#00f2fe";        // 浅主色 - 青色
-    const QString PRIMARY_DARK = "#3b82f6";         // 深主色 - 蓝色
+    const QString PRIMARY_COLOR = "#2563eb";        // 主色 - 蓝色
+    const QString PRIMARY_LIGHT = "#3b82f6";        // 浅主色
+    const QString PRIMARY_DARK = "#1d4ed8";         // 深主色
     
-    const QString ACCENT_COLOR = "#a855f7";         // 强调色 - 紫色
-    const QString ACCENT_LIGHT = "#c084fc";         // 浅强调色
+    const QString ACCENT_COLOR = "#7c3aed";         // 强调色 - 紫色
+    const QString ACCENT_LIGHT = "#8b5cf6";         // 浅强调色
     
-    // ========== 背景色 (渐变基础) - 更明亮的主题 ==========
-    const QString BG_GRADIENT_START = "#667eea";    // 亮蓝紫
-    const QString BG_GRADIENT_MID = "#764ba2";      // 柔和紫色
-    const QString BG_GRADIENT_END = "#f093fb";      // 浅粉紫
+    // ========== 背景色 - 极简浅色主题 ==========
+    const QString BG_GRADIENT_START = "#f8fafc";    // 浅灰白
+    const QString BG_GRADIENT_MID = "#f1f5f9";      // 柔和灰
+    const QString BG_GRADIENT_END = "#e2e8f0";      // 浅灰
     
-    // ========== 玻璃效果色 ==========
-    const QString GLASS_BG = "rgba(255, 255, 255, 0.15)";       // 玻璃背景 - 增强可见度
-    const QString GLASS_BG_HOVER = "rgba(255, 255, 255, 0.25)";  // 悬停玻璃背景
-    const QString GLASS_BG_ACTIVE = "rgba(255, 255, 255, 0.35)"; // 激活玻璃背景
-    const QString GLASS_BORDER = "rgba(255, 255, 255, 0.3)";   // 玻璃边框 - 更明显
-    const QString GLASS_BORDER_HOVER = "rgba(255, 255, 255, 0.5)"; // 悬停玻璃边框
+    // ========== 极简效果色 ==========
+    const QString GLASS_BG = "#ffffff";             // 白色背景
+    const QString GLASS_BG_HOVER = "#f8fafc";       // 悬停背景
+    const QString GLASS_BG_ACTIVE = "#f1f5f9";      // 激活背景
+    const QString GLASS_BORDER = "#e2e8f0";         // 边框颜色
+    const QString GLASS_BORDER_HOVER = "#cbd5e1";   // 悬停边框
     
     // ========== 文字颜色 ==========
-    const QString TEXT_PRIMARY = "#ffffff";         // 主要文字 - 白色
-    const QString TEXT_SECONDARY = "rgba(255, 255, 255, 0.7)"; // 次要文字
-    const QString TEXT_MUTED = "rgba(255, 255, 255, 0.5)";     // 淡化文字
+    const QString TEXT_PRIMARY = "#1e293b";         // 主要文字 - 深灰
+    const QString TEXT_SECONDARY = "#64748b";       // 次要文字
+    const QString TEXT_MUTED = "#94a3b8";           // 淡化文字
     
     // ========== 状态颜色 ==========
-    const QString SUCCESS_COLOR = "#10b981";        // 成功 - 绿色
-    const QString WARNING_COLOR = "#f59e0b";        // 警告 - 橙色
-    const QString ERROR_COLOR = "#ef4444";          // 错误 - 红色
-    const QString INFO_COLOR = "#3b82f6";           // 信息 - 蓝色
+    const QString SUCCESS_COLOR = "#16a34a";        // 成功 - 绿色
+    const QString WARNING_COLOR = "#ea580c";        // 警告 - 橙色
+    const QString ERROR_COLOR = "#dc2626";          // 错误 - 红色
+    const QString INFO_COLOR = "#2563eb";           // 信息 - 蓝色
     
     // ========== 阴影效果 ==========
-    const QString SHADOW_LIGHT = "rgba(0, 0, 0, 0.1)";
-    const QString SHADOW_MEDIUM = "rgba(0, 0, 0, 0.2)";
-    const QString SHADOW_DARK = "rgba(0, 0, 0, 0.3)";
+    const QString SHADOW_LIGHT = "rgba(0, 0, 0, 0.05)";
+    const QString SHADOW_MEDIUM = "rgba(0, 0, 0, 0.1)";
+    const QString SHADOW_DARK = "rgba(0, 0, 0, 0.15)";
     
-    // ========== 主窗口背景渐变样式 - 更明亮的主题 ==========
+    // ========== 主窗口背景样式 - 极简浅色主题 ==========
     const QString MAIN_BACKGROUND = R"(
         QMainWindow {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #667eea, stop:0.5 #764ba2, stop:1 #f093fb);
+            background: #f8fafc;
         }
         QWidget {
-            font-family: "Segoe UI", "Microsoft YaHei", "SimHei", "WenQuanYi Micro Hei", "Segoe UI Emoji", "Noto Color Emoji", "Apple Color Emoji", sans-serif;
+            font-family: "Segoe UI", "Microsoft YaHei", "SimHei", "WenQuanYi Micro Hei", sans-serif;
         }
     )";
     
-    // ========== 顶栏玻璃样式 - 亮色主题 ==========
+    // ========== 顶栏样式 - 极简浅色 ==========
     const QString TOPBAR_GLASS = R"(
         QFrame#topBar {
-            background: rgba(255, 255, 255, 0.2);
+            background: #ffffff;
             border: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+            border-bottom: 1px solid #e2e8f0;
         }
         QFrame#topBar QLabel {
-            color: #ffffff;
+            color: #1e293b;
             font-size: 14px;
             padding: 4px 8px;
             background: transparent;
             border: none;
         }
         QFrame#topBar QLabel#labTitle {
-            color: #ffffff;
+            color: #1e293b;
             font-size: 18px;
             font-weight: bold;
             background: transparent;
         }
     )";
     
-    // ========== 侧边栏玻璃样式 - 亮色主题 ==========
+    // ========== 侧边栏样式 - 极简浅色 ==========
     const QString SIDEBAR_GLASS = R"(
         QFrame#menuBar {
-            background: rgba(255, 255, 255, 0.15);
+            background: #ffffff;
             border: none;
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            border-right: 1px solid #e2e8f0;
         }
     )";
     
-    // ========== 导航按钮玻璃样式 - 更大文字 ==========
+    // ========== 导航按钮样式 - 极简风格 ==========
     const QString NAV_BUTTON_GLASS = R"(
         QPushButton {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
+            background: transparent;
+            color: #64748b;
+            border: none;
+            border-radius: 8px;
             padding: 12px 16px;
-            font-size: 17px;
+            font-size: 15px;
             font-weight: 500;
             text-align: left;
         }
         QPushButton:hover {
-            background: rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: #f1f5f9;
+            color: #1e293b;
         }
         QPushButton:pressed {
-            background: rgba(255, 255, 255, 0.35);
+            background: #e2e8f0;
         }
         QPushButton:checked {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 rgba(79, 172, 254, 0.6), stop:1 rgba(0, 242, 254, 0.4));
-            color: #ffffff;
-            border: 1px solid rgba(79, 172, 254, 0.7);
+            background: #eff6ff;
+            color: #2563eb;
             font-weight: bold;
         }
     )";
     
-    // ========== 内容区玻璃样式 ==========
+    // ========== 内容区样式 ==========
     const QString CONTENT_GLASS = R"(
         QStackedWidget#contentStackedWidget {
             background: transparent;
@@ -136,29 +133,29 @@ namespace GlassStyle {
         }
     )";
     
-    // ========== 页面基础玻璃样式 - 亮色主题 ==========
+    // ========== 页面基础样式 - 极简浅色 ==========
     const QString PAGE_GLASS = R"(
         QWidget {
             background: transparent;
-            color: #ffffff;
+            color: #1e293b;
         }
         QLabel {
-            color: #ffffff;
+            color: #1e293b;
             background: transparent;
         }
     )";
     
-    // ========== 玻璃面板/卡片样式 - 亮色主题 ==========
+    // ========== 面板/卡片样式 - 极简风格 ==========
     const QString GLASS_PANEL = R"(
         QFrame, QGroupBox {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 16px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
         }
         QGroupBox {
             font-weight: bold;
             font-size: 14px;
-            color: #ffffff;
+            color: #1e293b;
             padding-top: 16px;
             margin-top: 8px;
         }
@@ -168,129 +165,123 @@ namespace GlassStyle {
             left: 16px;
             padding: 0 8px;
             background: transparent;
-            color: #ffffff;
+            color: #1e293b;
         }
     )";
     
-    // ========== 玻璃按钮样式 - 亮色主题 ==========
+    // ========== 按钮样式 - 极简风格 ==========
     const QString GLASS_BUTTON = R"(
         QPushButton {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            border-radius: 10px;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             padding: 10px 20px;
             font-size: 14px;
             font-weight: 500;
         }
         QPushButton:hover {
-            background: rgba(255, 255, 255, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
         }
         QPushButton:pressed {
-            background: rgba(255, 255, 255, 0.45);
+            background: #f1f5f9;
         }
         QPushButton:disabled {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: #f8fafc;
+            color: #94a3b8;
+            border: 1px solid #e2e8f0;
         }
     )";
     
-    // ========== 主要操作按钮样式 (带渐变) ==========
+    // ========== 主要操作按钮样式 ==========
     const QString GLASS_BUTTON_PRIMARY = R"(
         QPushButton {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 rgba(79, 172, 254, 0.6), stop:1 rgba(0, 242, 254, 0.4));
+            background: #2563eb;
             color: #ffffff;
-            border: 1px solid rgba(79, 172, 254, 0.5);
-            border-radius: 10px;
+            border: none;
+            border-radius: 8px;
             padding: 10px 20px;
             font-size: 14px;
             font-weight: 600;
         }
         QPushButton:hover {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 rgba(79, 172, 254, 0.8), stop:1 rgba(0, 242, 254, 0.6));
-            border: 1px solid rgba(79, 172, 254, 0.7);
+            background: #1d4ed8;
         }
         QPushButton:pressed {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 rgba(79, 172, 254, 0.9), stop:1 rgba(0, 242, 254, 0.7));
+            background: #1e40af;
         }
         QPushButton:disabled {
-            background: rgba(79, 172, 254, 0.2);
-            color: rgba(255, 255, 255, 0.4);
-            border: 1px solid rgba(79, 172, 254, 0.2);
+            background: #93c5fd;
+            color: #ffffff;
         }
     )";
     
     // ========== 危险操作按钮样式 ==========
     const QString GLASS_BUTTON_DANGER = R"(
         QPushButton {
-            background: rgba(239, 68, 68, 0.4);
+            background: #dc2626;
             color: #ffffff;
-            border: 1px solid rgba(239, 68, 68, 0.5);
-            border-radius: 10px;
+            border: none;
+            border-radius: 8px;
             padding: 10px 20px;
             font-size: 14px;
             font-weight: 600;
         }
         QPushButton:hover {
-            background: rgba(239, 68, 68, 0.6);
-            border: 1px solid rgba(239, 68, 68, 0.7);
+            background: #b91c1c;
         }
         QPushButton:pressed {
-            background: rgba(239, 68, 68, 0.75);
+            background: #991b1b;
         }
     )";
     
-    // ========== 玻璃输入框样式 - 亮色主题 ==========
+    // ========== 输入框样式 - 极简风格 ==========
     const QString GLASS_INPUT = R"(
         QLineEdit, QSpinBox, QDoubleSpinBox {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
             padding: 8px 12px;
             font-size: 14px;
-            selection-background-color: rgba(79, 172, 254, 0.5);
+            selection-background-color: #bfdbfe;
         }
         QLineEdit:hover, QSpinBox:hover, QDoubleSpinBox:hover {
-            border: 1px solid rgba(255, 255, 255, 0.45);
+            border: 1px solid #cbd5e1;
         }
         QLineEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus {
-            border: 1px solid rgba(79, 172, 254, 0.7);
-            background: rgba(255, 255, 255, 0.25);
+            border: 1px solid #2563eb;
+            background: #ffffff;
         }
         QSpinBox::up-button, QSpinBox::down-button,
         QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {
-            background: rgba(255, 255, 255, 0.2);
+            background: #f8fafc;
             border: none;
             width: 20px;
         }
         QSpinBox::up-button:hover, QSpinBox::down-button:hover,
         QDoubleSpinBox::up-button:hover, QDoubleSpinBox::down-button:hover {
-            background: rgba(255, 255, 255, 0.35);
+            background: #e2e8f0;
         }
     )";
     
-    // ========== 玻璃下拉框样式 - 亮色主题 ==========
+    // ========== 下拉框样式 - 极简风格 ==========
     const QString GLASS_COMBOBOX = R"(
         QComboBox {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
             padding: 8px 12px;
             font-size: 14px;
             min-width: 100px;
         }
         QComboBox:hover {
-            border: 1px solid rgba(255, 255, 255, 0.45);
+            border: 1px solid #cbd5e1;
         }
         QComboBox:focus {
-            border: 1px solid rgba(79, 172, 254, 0.7);
+            border: 1px solid #2563eb;
         }
         QComboBox::drop-down {
             width: 30px;
@@ -301,16 +292,16 @@ namespace GlassStyle {
             image: none;
             border-left: 5px solid transparent;
             border-right: 5px solid transparent;
-            border-top: 6px solid #ffffff;
+            border-top: 6px solid #64748b;
             margin-right: 10px;
         }
         QComboBox QAbstractItemView {
-            background: rgba(118, 75, 162, 0.95);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            selection-background-color: rgba(79, 172, 254, 0.5);
-            selection-color: #ffffff;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            selection-background-color: #eff6ff;
+            selection-color: #2563eb;
             outline: 0;
             padding: 4px;
         }
@@ -320,145 +311,144 @@ namespace GlassStyle {
             margin: 2px;
         }
         QComboBox QAbstractItemView::item:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: #f1f5f9;
         }
     )";
     
-    // ========== 玻璃复选框样式 - 亮色主题 ==========
+    // ========== 复选框样式 - 极简风格 ==========
     const QString GLASS_CHECKBOX = R"(
         QCheckBox {
-            color: #ffffff;
+            color: #1e293b;
             font-size: 14px;
             spacing: 8px;
         }
         QCheckBox::indicator {
-            width: 20px;
-            height: 20px;
-            border-radius: 6px;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            background: rgba(255, 255, 255, 0.15);
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 2px solid #cbd5e1;
+            background: #ffffff;
         }
         QCheckBox::indicator:hover {
-            border: 2px solid rgba(255, 255, 255, 0.7);
-            background: rgba(255, 255, 255, 0.25);
+            border: 2px solid #94a3b8;
         }
         QCheckBox::indicator:checked {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 rgba(79, 172, 254, 0.9), stop:1 rgba(0, 242, 254, 0.7));
-            border: 2px solid rgba(79, 172, 254, 0.8);
+            background: #2563eb;
+            border: 2px solid #2563eb;
         }
     )";
     
-    // ========== 玻璃列表样式 - 亮色主题 ==========
+    // ========== 列表样式 - 极简风格 ==========
     const QString GLASS_LIST = R"(
         QListWidget, QListView {
-            background: rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 12px;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             padding: 6px;
             outline: none;
         }
         QListWidget::item, QListView::item {
             background: transparent;
-            color: #ffffff;
-            border-radius: 8px;
+            color: #1e293b;
+            border-radius: 6px;
             padding: 10px 14px;
             margin: 2px;
         }
         QListWidget::item:hover, QListView::item:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: #f1f5f9;
         }
         QListWidget::item:selected, QListView::item:selected {
-            background: rgba(79, 172, 254, 0.5);
-            border: 1px solid rgba(79, 172, 254, 0.6);
+            background: #eff6ff;
+            color: #2563eb;
         }
     )";
     
-    // ========== 玻璃标签页样式 - 亮色主题 ==========
+    // ========== 标签页样式 - 极简风格 ==========
     const QString GLASS_TAB = R"(
         QTabWidget::pane {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 12px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             padding: 10px;
         }
         QTabBar::tab {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.8);
+            background: transparent;
+            color: #64748b;
             border: none;
             padding: 10px 20px;
             margin-right: 4px;
-            border-radius: 8px 8px 0 0;
+            border-radius: 6px 6px 0 0;
             font-size: 14px;
         }
         QTabBar::tab:hover {
-            background: rgba(255, 255, 255, 0.25);
-            color: #ffffff;
+            background: #f1f5f9;
+            color: #1e293b;
         }
         QTabBar::tab:selected {
-            background: rgba(255, 255, 255, 0.3);
-            color: #ffffff;
+            background: #ffffff;
+            color: #2563eb;
             font-weight: bold;
+            border-bottom: 2px solid #2563eb;
         }
     )";
     
-    // ========== 玻璃文本编辑器样式 - 亮色主题 ==========
+    // ========== 文本编辑器样式 - 极简风格 ==========
     const QString GLASS_TEXTEDIT = R"(
         QTextEdit, QPlainTextEdit {
-            background: rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            border-radius: 12px;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             padding: 12px;
             font-size: 13px;
             font-family: "Consolas", "Monaco", "Microsoft YaHei", monospace;
-            selection-background-color: rgba(79, 172, 254, 0.5);
+            selection-background-color: #bfdbfe;
         }
         QTextEdit:focus, QPlainTextEdit:focus {
-            border: 1px solid rgba(79, 172, 254, 0.6);
+            border: 1px solid #2563eb;
         }
     )";
     
-    // ========== 玻璃滚动条样式 - 亮色主题 ==========
+    // ========== 滚动条样式 - 极简风格 ==========
     const QString GLASS_SCROLLBAR = R"(
         QScrollBar:vertical {
-            background: transparent;
-            width: 10px;
-            border-radius: 5px;
+            background: #f8fafc;
+            width: 8px;
+            border-radius: 4px;
             margin: 2px;
         }
         QScrollBar::handle:vertical {
-            background: rgba(255, 255, 255, 0.35);
-            border-radius: 5px;
+            background: #cbd5e1;
+            border-radius: 4px;
             min-height: 30px;
         }
         QScrollBar::handle:vertical:hover {
-            background: rgba(255, 255, 255, 0.5);
+            background: #94a3b8;
         }
         QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
             height: 0;
         }
         QScrollBar:horizontal {
-            background: transparent;
-            height: 10px;
-            border-radius: 5px;
+            background: #f8fafc;
+            height: 8px;
+            border-radius: 4px;
             margin: 2px;
         }
         QScrollBar::handle:horizontal {
-            background: rgba(255, 255, 255, 0.35);
-            border-radius: 5px;
+            background: #cbd5e1;
+            border-radius: 4px;
             min-width: 30px;
         }
         QScrollBar::handle:horizontal:hover {
-            background: rgba(255, 255, 255, 0.5);
+            background: #94a3b8;
         }
         QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
             width: 0;
         }
     )";
     
-    // ========== 玻璃滚动区域样式 ==========
+    // ========== 滚动区域样式 ==========
     const QString GLASS_SCROLLAREA = R"(
         QScrollArea {
             background: transparent;
@@ -469,92 +459,95 @@ namespace GlassStyle {
         }
     )";
     
-    // ========== 玻璃对话框样式 - 更明亮的主题 ==========
+    // ========== 对话框样式 - 极简风格 ==========
     const QString GLASS_DIALOG = R"(
         QDialog {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 rgba(102, 126, 234, 0.98), stop:0.5 rgba(118, 75, 162, 0.98), stop:1 rgba(240, 147, 251, 0.98));
+            background: #ffffff;
         }
         QDialog QLabel {
-            color: #ffffff;
+            color: #1e293b;
             background: transparent;
         }
         QDialog QFrame#card {
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
         }
     )";
     
     // ========== 自定义输入对话框样式 ==========
     const QString GLASS_INPUT_DIALOG = R"(
         QDialog {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 rgba(102, 126, 234, 0.98), stop:0.5 rgba(118, 75, 162, 0.98), stop:1 rgba(240, 147, 251, 0.98));
+            background: #ffffff;
         }
         QDialog QLabel {
-            color: #ffffff;
+            color: #1e293b;
             background: transparent;
             font-size: 14px;
         }
         QDialog QLineEdit {
-            background: rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 8px;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
             padding: 10px 14px;
             font-size: 14px;
-            selection-background-color: rgba(79, 172, 254, 0.5);
+            selection-background-color: #bfdbfe;
         }
         QDialog QLineEdit:focus {
-            border: 1px solid rgba(79, 172, 254, 0.7);
-            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid #2563eb;
         }
         QDialog QSpinBox {
-            background: rgba(255, 255, 255, 0.25);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 8px;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
             padding: 10px 14px;
             font-size: 14px;
         }
         QDialog QSpinBox:focus {
-            border: 1px solid rgba(79, 172, 254, 0.7);
-            background: rgba(255, 255, 255, 0.3);
+            border: 1px solid #2563eb;
         }
         QDialog QSpinBox::up-button, QDialog QSpinBox::down-button {
-            background: rgba(255, 255, 255, 0.2);
+            background: #f8fafc;
             border: none;
             width: 24px;
         }
         QDialog QSpinBox::up-button:hover, QDialog QSpinBox::down-button:hover {
-            background: rgba(255, 255, 255, 0.35);
+            background: #e2e8f0;
         }
         QDialog QPushButton {
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            border-radius: 10px;
+            background: #ffffff;
+            color: #1e293b;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
             padding: 10px 20px;
             font-size: 14px;
             font-weight: 500;
             min-width: 80px;
         }
         QDialog QPushButton:hover {
-            background: rgba(255, 255, 255, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
         }
         QDialog QPushButton:pressed {
-            background: rgba(255, 255, 255, 0.45);
+            background: #f1f5f9;
         }
         QDialog QPushButton#primary, QDialog QPushButton:default {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 rgba(79, 172, 254, 0.6), stop:1 rgba(0, 242, 254, 0.4));
-            border: 1px solid rgba(79, 172, 254, 0.5);
+            background: #2563eb;
+            color: #ffffff;
+            border: none;
         }
         QDialog QPushButton#primary:hover, QDialog QPushButton:default:hover {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
-                stop:0 rgba(79, 172, 254, 0.8), stop:1 rgba(0, 242, 254, 0.6));
+            background: #1d4ed8;
+        }
+        QDialog QPushButton#danger {
+            background: #dc2626;
+            color: #ffffff;
+            border: none;
+        }
+        QDialog QPushButton#danger:hover {
+            background: #b91c1c;
         }
     )";
 

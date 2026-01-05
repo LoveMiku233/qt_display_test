@@ -2,8 +2,8 @@
  * @file card_widget.cpp
  * @brief 设备卡片组件实现
  * 
- * 实现玻璃拟态风格的设备信息卡片，支持悬停和点击动画效果，
- * 包含阴影效果和半透明玻璃背景样式。
+ * 实现极简留白风格的设备信息卡片，支持悬停和点击动画效果，
+ * 包含阴影效果和简洁白色背景样式。
  */
 
 #include "card_widget.h"
@@ -16,56 +16,56 @@
 #include <QGraphicsOpacityEffect>
 
 /**
- * @brief 卡片玻璃拟态样式命名空间
+ * @brief 卡片极简样式命名空间
  * 
- * 定义卡片组件的玻璃拟态样式常量，包括阴影配置和不同状态下的样式
+ * 定义卡片组件的极简留白样式常量，包括阴影配置和不同状态下的样式
  */
 namespace CardStyle {
     // 阴影配置常量
-    const int SHADOW_BLUR_NORMAL = 20;     // 普通状态阴影模糊半径
-    const int SHADOW_BLUR_HOVER = 30;      // 悬停状态阴影模糊半径
-    const int SHADOW_BLUR_PRESSED = 12;    // 按下状态阴影模糊半径
-    const int SHADOW_OPACITY = 60;         // 阴影透明度
-    const int SHADOW_OFFSET_Y = 6;         // 阴影Y轴偏移
+    const int SHADOW_BLUR_NORMAL = 8;      // 普通状态阴影模糊半径
+    const int SHADOW_BLUR_HOVER = 16;      // 悬停状态阴影模糊半径
+    const int SHADOW_BLUR_PRESSED = 4;     // 按下状态阴影模糊半径
+    const int SHADOW_OPACITY = 25;         // 阴影透明度
+    const int SHADOW_OFFSET_Y = 2;         // 阴影Y轴偏移
     const int SHADOW_ANIM_DURATION = 150;  // 阴影动画持续时间(毫秒)
     
-    // 玻璃拟态普通状态样式 - 亮色主题
+    // 极简普通状态样式
     const QString CARD_NORMAL = R"(
         QFrame {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
         }
         QLabel {
-            color: #ffffff;
+            color: #1e293b;
             background: transparent;
             border: none;
         }
     )";
     
-    // 玻璃拟态悬停状态样式 - 亮色主题
+    // 极简悬停状态样式
     const QString CARD_HOVER = R"(
         QFrame {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 16px;
-            border: 1px solid rgba(79, 172, 254, 0.6);
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #2563eb;
         }
         QLabel {
-            color: #ffffff;
+            color: #1e293b;
             background: transparent;
             border: none;
         }
     )";
     
-    // 玻璃拟态按下状态样式 - 亮色主题
+    // 极简按下状态样式
     const QString CARD_PRESSED = R"(
         QFrame {
-            background: rgba(79, 172, 254, 0.4);
-            border-radius: 16px;
-            border: 1px solid rgba(79, 172, 254, 0.7);
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 1px solid #2563eb;
         }
         QLabel {
-            color: #ffffff;
+            color: #1e293b;
             background: transparent;
             border: none;
         }
@@ -77,7 +77,7 @@ namespace CardStyle {
  * @param nodeId 设备节点ID
  * @param parent 父控件指针
  * 
- * 创建卡片布局，设置玻璃拟态样式和阴影效果
+ * 创建卡片布局，设置极简留白样式和阴影效果
  */
 DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     : QFrame(parent), nodeId_(nodeId), isHovered_(false), isPressed_(false)
@@ -88,7 +88,7 @@ DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     setAttribute(Qt::WA_Hover, true);
     setMinimumHeight(120);
     
-    // 应用玻璃拟态样式
+    // 应用极简留白样式
     setStyleSheet(CardStyle::CARD_NORMAL);
     
     // 添加阴影效果
@@ -99,9 +99,9 @@ DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     setGraphicsEffect(shadow);
     shadowEffect_ = shadow;
 
-    // 创建标题标签 - 玻璃拟态风格
+    // 创建标题标签 - 极简风格
     title_ = new QLabel(QString("节点 %1").arg(nodeId_), this);
-    title_->setStyleSheet("font-weight:600; font-size:16px; color:#ffffff;");
+    title_->setStyleSheet("font-weight:600; font-size:16px; color:#1e293b;");
     
     // 创建标签行布局
     tagsLayout_ = new QHBoxLayout();
@@ -109,12 +109,12 @@ DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     tagsLayout_->setSpacing(6);
     tagsLayout_->addStretch();
     
-    // 创建信息行标签 - 玻璃拟态风格
+    // 创建信息行标签 - 极简风格
     line1_ = new QLabel("—", this);
-    line1_->setStyleSheet("font-size:13px; color:rgba(255, 255, 255, 0.7);");
+    line1_->setStyleSheet("font-size:13px; color:#64748b;");
     
     line2_ = new QLabel("点击查看详情", this);
-    line2_->setStyleSheet("font-size:12px; color:rgba(255, 255, 255, 0.5);");
+    line2_->setStyleSheet("font-size:12px; color:#94a3b8;");
 
     // 设置布局
     auto* lay = new QVBoxLayout(this);
@@ -292,36 +292,36 @@ void DeviceCardWidget::setTags(const QStringList& tags)
     }
     tagLabels_.clear();
     
-    // 标签颜色配置 - 不同功能不同颜色
+    // 标签颜色配置 - 极简风格
     const QStringList colors = {
-        "rgba(16, 185, 129, 0.75)",   // CAN - 绿色
-        "rgba(245, 158, 11, 0.75)",   // 4路继电器 - 橙色
-        "rgba(59, 130, 246, 0.75)"    // 电流检测 - 蓝色
+        "#dcfce7",   // CAN - 浅绿色背景
+        "#fef3c7",   // 4路继电器 - 浅橙色背景
+        "#dbeafe"    // 电流检测 - 浅蓝色背景
     };
     
-    const QStringList borderColors = {
-        "rgba(16, 185, 129, 0.9)",
-        "rgba(245, 158, 11, 0.9)",
-        "rgba(59, 130, 246, 0.9)"
+    const QStringList textColors = {
+        "#166534",   // CAN - 深绿色文字
+        "#92400e",   // 4路继电器 - 深橙色文字
+        "#1e40af"    // 电流检测 - 深蓝色文字
     };
     
     int idx = 0;
     for (const QString& tag : tags) {
         auto* lbl = new QLabel(tag, this);
         QString bgColor = colors.value(idx % colors.size());
-        QString borderColor = borderColors.value(idx % borderColors.size());
+        QString textColor = textColors.value(idx % textColors.size());
         
         lbl->setStyleSheet(QString(
             "QLabel {"
             "  background: %1;"
-            "  color: #ffffff;"
-            "  border: 1px solid %2;"
-            "  border-radius: 8px;"
+            "  color: %2;"
+            "  border: none;"
+            "  border-radius: 6px;"
             "  padding: 3px 8px;"
             "  font-size: 11px;"
             "  font-weight: 500;"
             "}"
-        ).arg(bgColor, borderColor));
+        ).arg(bgColor, textColor));
         
         lbl->setFixedHeight(22);
         
