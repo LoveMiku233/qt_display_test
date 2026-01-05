@@ -28,26 +28,12 @@ namespace CardStyle {
     const int SHADOW_OFFSET_Y = 6;         // 阴影Y轴偏移
     const int SHADOW_ANIM_DURATION = 150;  // 阴影动画持续时间(毫秒)
     
-    // 玻璃拟态普通状态样式
+    // 玻璃拟态普通状态样式 - 亮色主题
     const QString CARD_NORMAL = R"(
         QFrame {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        QLabel {
-            color: rgba(255, 255, 255, 0.9);
-            background: transparent;
-            border: none;
-        }
-    )";
-    
-    // 玻璃拟态悬停状态样式
-    const QString CARD_HOVER = R"(
-        QFrame {
-            background: rgba(255, 255, 255, 0.12);
-            border-radius: 16px;
-            border: 1px solid rgba(79, 172, 254, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
         QLabel {
             color: #ffffff;
@@ -56,12 +42,26 @@ namespace CardStyle {
         }
     )";
     
-    // 玻璃拟态按下状态样式
-    const QString CARD_PRESSED = R"(
+    // 玻璃拟态悬停状态样式 - 亮色主题
+    const QString CARD_HOVER = R"(
         QFrame {
-            background: rgba(79, 172, 254, 0.2);
+            background: rgba(255, 255, 255, 0.3);
             border-radius: 16px;
             border: 1px solid rgba(79, 172, 254, 0.6);
+        }
+        QLabel {
+            color: #ffffff;
+            background: transparent;
+            border: none;
+        }
+    )";
+    
+    // 玻璃拟态按下状态样式 - 亮色主题
+    const QString CARD_PRESSED = R"(
+        QFrame {
+            background: rgba(79, 172, 254, 0.4);
+            border-radius: 16px;
+            border: 1px solid rgba(79, 172, 254, 0.7);
         }
         QLabel {
             color: #ffffff;
