@@ -70,7 +70,7 @@ void CtrlPage::loadCards()
     int i = 0;
     for (int nodeId : nodes) {
         auto* card = new DeviceCardWidget(nodeId, this);
-        card->setTitle(QString("节点 %1").arg(nodeId));
+        card->setTitle(QString("继电器节点 %1").arg(nodeId));
 
         const int row = i / 2;
         const int col = i % 2;
