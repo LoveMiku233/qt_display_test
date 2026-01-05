@@ -28,6 +28,7 @@ private:
 
     int refreshIndex_ = 0;
     bool refreshInFlight_ = false;   // 防止上一条没回来又发
+    bool refreshPaused_ = false;     // 弹窗打开时暂停刷新
 
 };
 

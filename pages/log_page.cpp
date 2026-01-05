@@ -8,7 +8,7 @@ LogPage::LogPage(QWidget *parent)
 {
     ui->setupUi(this);
     
-    // 应用玻璃拟态风格样式
+    // 应用极简留白风格样式
     setStyleSheet(GlassStyle::getFullPageStyle());
 }
 

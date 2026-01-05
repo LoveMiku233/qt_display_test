@@ -11,11 +11,13 @@ Makefile.*
 *.qm
 *.user
 .qmake.stash
+app/build/
 
 # Binary executables
 app/qt_display_yk_1
 core/core_server
 tests/tests
+qt_display_yk_1
 
 # Config directory (generated at runtime)
 app/config/

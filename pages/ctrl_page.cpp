@@ -10,6 +10,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonDocument>
+#include <algorithm>
 
 #include "rpc/json_rpc_client.h"
 #include "app_context.h"
@@ -20,7 +21,7 @@ CtrlPage::CtrlPage(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // 应用玻璃拟态风格样式
+    // 应用极简留白风格样式
     setStyleSheet(GlassStyle::getFullPageStyle());
 
     // get rpc
@@ -60,21 +61,27 @@ void CtrlPage::loadCards()
 
     // empty add 1 2 3
     if (nodes.isEmpty()) nodes = {1,2,3};
+    
+    // 按节点ID排序
+    std::sort(nodes.begin(), nodes.end());
 
     QGridLayout* grid = ui->gridLayout;
 
     int i = 0;
     for (int nodeId : nodes) {
         auto* card = new DeviceCardWidget(nodeId, this);
-        card->setTitle(QString("Relay Node %1").arg(nodeId));
+        card->setTitle(QString("继电器节点 %1").arg(nodeId));
 
         const int row = i / 2;
         const int col = i % 2;
         grid->addWidget(card, row, col);
 
         connect(card, &DeviceCardWidget::clicked, this, [this](int node){
+            // 暂停刷新，避免弹窗导致卡片重绘问题
+            refreshPaused_ = true;
             DeviceDialog dlg(node, rpc_, this);
             dlg.exec();
+            refreshPaused_ = false;
         });
 
         cards_.append(card);
@@ -88,6 +95,7 @@ void CtrlPage::loadCards()
 void CtrlPage::refreshCards()
 {
     if (!rpc_ || !rpc_->isConnected() || cards_.isEmpty()) return;
+    if (refreshPaused_) return;  // 弹窗打开时暂停刷新
     if (refreshInFlight_) return;                // 上一次还没回
 
     if (refreshIndex_ >= cards_.size()) refreshIndex_ = 0;
