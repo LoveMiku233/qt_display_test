@@ -4,6 +4,7 @@
 #include <QString>
 #include <QList>
 #include <QJsonObject>
+#include <QtGlobal>
 #include "device/device_list.h"
 
 /**
@@ -71,6 +72,22 @@ struct DeviceGroupConfig {
 };
 
 /**
+ * @brief 自动控制策略配置
+ *
+ * 将策略与设备组绑定，用于周期性地向组内设备下发控制指令。
+ */
+struct AutoStrategyConfig {
+    int strategyId = 0;                                   // 策略ID
+    QString name;                                         // 策略名称
+    int groupId = 0;                                      // 目标组ID
+    quint8 channel = 0;                                   // 通道
+    QString action = "stop";                              // 动作(stop/fwd/rev)
+    int intervalSec = 60;                                 // 执行间隔(秒)
+    bool enabled = true;                                  // 是否启用
+    bool autoStart = true;                                // 是否自动启动
+};
+
+/**
  * @brief 核心配置类
  * 
  * 管理大棚控制系统的所有核心配置，包括RPC端口、CAN总线参数、
@@ -85,6 +102,7 @@ public:
 
     QList<DeviceConfig> devices_;                         // 设备列表
     QList<DeviceGroupConfig> groups_;                     // 设备组列表
+    QList<AutoStrategyConfig> strategies_;                // 自动策略列表
 
     /**
      * @brief 从文件加载配置

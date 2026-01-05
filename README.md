@@ -45,6 +45,13 @@
 - `relay.statusAll` - 获取节点所有通道状态 (参数: node)
 - `relay.nodes` - 列出所有继电器节点
 
+#### 控制队列与自动策略命令
+- `control.queue.status` - 查看控制队列长度与运行状态
+- `control.queue.result` - 查询指定任务的执行结果 (参数: jobId)
+- `auto.strategy.list` - 列出自动策略绑定与状态
+- `auto.strategy.enable` - 启用/禁用策略 (参数: id, enabled)
+- `auto.strategy.trigger` - 手动触发一次策略 (参数: id)
+
 ## 配置文件格式
 
 配置文件支持设备和组的定义：
@@ -79,6 +86,18 @@
       "name": "主控组",
       "enabled": true,
       "devices": [1, 2, 3]
+    }
+  ],
+  "strategies": [
+    {
+      "id": 1,
+      "name": "默认停止示例",
+      "groupId": 1,
+      "channel": 0,
+      "action": "stop",
+      "intervalSec": 120,
+      "enabled": true,
+      "autoStart": false
     }
   ]
 }

@@ -76,6 +76,25 @@ CoreConfig CoreConfig::makeDefault()
     d1.params = QJsonObject{{"channels", 4}};
     c.devices_.append(d1);
 
+    // 默认分组与策略，便于开箱即用
+    DeviceGroupConfig g1;
+    g1.groupId = 1;
+    g1.name = "default";
+    g1.deviceNodes = {1};
+    g1.enabled = true;
+    c.groups_.append(g1);
+
+    AutoStrategyConfig s1;
+    s1.strategyId = 1;
+    s1.name = "default-stop";
+    s1.groupId = g1.groupId;
+    s1.channel = 0;
+    s1.action = "stop";
+    s1.intervalSec = 120;
+    s1.enabled = true;
+    s1.autoStart = false; // 仅提供示例，默认不自动启动
+    c.strategies_.append(s1);
+
     return c;
 }
 
@@ -172,6 +191,28 @@ bool CoreConfig::loadFromFile(const QString& path, QString* err)
         }
     }
 
+    // 读取自动策略数组
+    strategies_.clear();
+    if (root.contains("strategies") && root["strategies"].isArray()) {
+        const auto arr = root["strategies"].toArray();
+        for (const auto& v : arr) {
+            if (!v.isObject()) continue;
+            const auto o = v.toObject();
+
+            AutoStrategyConfig s;
+            s.strategyId = o.value("id").toInt(0);
+            s.name = o.value("name").toString();
+            s.groupId = o.value("groupId").toInt(0);
+            s.channel = quint8(o.value("channel").toInt(0));
+            s.action = o.value("action").toString("stop");
+            s.intervalSec = o.value("intervalSec").toInt(60);
+            s.enabled = o.value("enabled").toBool(true);
+            s.autoStart = o.value("autoStart").toBool(true);
+
+            strategies_.append(s);
+        }
+    }
+
     return true;
 }
 
@@ -237,6 +278,22 @@ bool CoreConfig::saveToFile(const QString& path, QString* err) const
         groupArr.append(o);
     }
     root["groups"] = groupArr;
+
+    // 自动策略列表
+    QJsonArray strategyArr;
+    for (const auto& s : strategies_) {
+        QJsonObject o;
+        o["id"] = s.strategyId;
+        o["name"] = s.name;
+        o["groupId"] = s.groupId;
+        o["channel"] = int(s.channel);
+        o["action"] = s.action;
+        o["intervalSec"] = s.intervalSec;
+        o["enabled"] = s.enabled;
+        o["autoStart"] = s.autoStart;
+        strategyArr.append(o);
+    }
+    root["strategies"] = strategyArr;
 
     QJsonDocument doc(root);
     const QByteArray data = doc.toJson(QJsonDocument::Indented);
