@@ -114,17 +114,6 @@ void RpcRegistry::registerCan()
 }
 
 
-static RelayCanProtocol::Action parseAction(const QString& s, bool* ok=nullptr)
-{
-    const QString a = s.trimmed().toLower();
-    if (ok) *ok = true;
-    if (a == "stop" || a == "0") return RelayCanProtocol::Action::Stop;
-    if (a == "fwd"  || a == "forward" || a == "1") return RelayCanProtocol::Action::Forward;
-    if (a == "rev"  || a == "reverse" || a == "2") return RelayCanProtocol::Action::Reverse;
-    if (ok) *ok = false;
-    return RelayCanProtocol::Action::Stop;
-}
-
 void RpcRegistry::registerRelay()
 {
     // relay.control: {node:2, ch:0, action:"fwd"}
@@ -140,7 +129,7 @@ void RpcRegistry::registerRelay()
             return RpcHelpers::err(RpcError::MissingParameter, "missing action");
 
         bool okAction=false;
-        const auto action = parseAction(actionStr, &okAction);
+        const auto action = ctx_->parseAction(actionStr, &okAction);
         if (!okAction)
             return RpcHelpers::err(RpcError::BadParameterValue, "invalid action (stop/fwd/rev)");
 
@@ -151,7 +140,7 @@ void RpcRegistry::registerRelay()
 
         QJsonObject obj{
             {"ok", true},
-            {"jobId", double(res.jobId)},
+            {"jobId", QString::number(res.jobId)},
             {"queued", !res.executedImmediately}
         };
         if (res.executedImmediately) obj["success"] = res.success;
@@ -341,7 +330,7 @@ void RpcRegistry::registerGroup()
             return RpcHelpers::err(RpcError::MissingParameter, "missing action");
         
         bool okAction = false;
-        const auto action = parseAction(actionStr, &okAction);
+        const auto action = ctx_->parseAction(actionStr, &okAction);
         if (!okAction)
             return RpcHelpers::err(RpcError::BadParameterValue, "invalid action (stop/fwd/rev)");
         
@@ -350,7 +339,7 @@ void RpcRegistry::registerGroup()
 
         const auto stats = ctx_->queueGroupControl(groupId, ch, action, "rpc:group.control");
         QJsonArray jobs;
-        for (quint64 id : stats.jobIds) jobs.append(double(id));
+        for (quint64 id : stats.jobIds) jobs.append(QString::number(id));
 
         return QJsonObject{
             {"ok", true},
@@ -370,16 +359,32 @@ void RpcRegistry::registerAuto()
             {"ok", true},
             {"pending", snap.pending},
             {"active", snap.active},
-            {"lastJobId", double(snap.lastJobId)}
+            {"lastJobId", snap.lastJobId ? QJsonValue(QString::number(snap.lastJobId)) : QJsonValue()}
         };
     });
 
     disp_->registerMethod("control.queue.result", [&](const QJsonObject& params){
-        qint32 jobId = 0;
-        if (!RpcHelpers::getI32(params, "jobId", jobId) || jobId <= 0)
-            return RpcHelpers::err(RpcError::MissingParameter, "missing/invalid jobId");
-        const auto res = ctx_->jobResult(quint64(jobId));
+        if (!params.contains("jobId"))
+            return RpcHelpers::err(RpcError::MissingParameter, "missing jobId");
+
+        quint64 jobId = 0;
+        bool okId = false;
+        const auto jobVal = params.value("jobId");
+        if (jobVal.isString()) {
+            jobId = jobVal.toString().toULongLong(&okId);
+        } else if (jobVal.isDouble()) {
+            const double v = jobVal.toDouble(&okId);
+            if (okId && v >= 0) jobId = static_cast<quint64>(v);
+        }
+
+        if (!okId)
+            return RpcHelpers::err(RpcError::BadParameterType, "jobId must be integer or string");
+        if (jobId == 0)
+            return RpcHelpers::err(RpcError::BadParameterValue, "jobId must be a positive integer identifier");
+
+        const auto res = ctx_->jobResult(jobId);
         return QJsonObject{
+            {"jobId", QString::number(jobId)},
             {"ok", res.ok},
             {"message", res.message},
             {"finishedMs", double(res.finishedMs)}
@@ -411,6 +416,8 @@ void RpcRegistry::registerAuto()
         bool enabled = true;
         if (!RpcHelpers::getI32(params, "id", id))
             return RpcHelpers::err(RpcError::MissingParameter, "missing id");
+        if (!params.contains("enabled"))
+            return RpcHelpers::err(RpcError::MissingParameter, "missing enabled");
         if (!RpcHelpers::getBool(params, "enabled", enabled, true))
             return RpcHelpers::err(RpcError::BadParameterType, "invalid enabled");
         if (!ctx_->setStrategyEnabled(id, enabled))

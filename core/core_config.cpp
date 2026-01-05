@@ -92,7 +92,7 @@ CoreConfig CoreConfig::makeDefault()
     s1.action = "stop";
     s1.intervalSec = 120;
     s1.enabled = true;
-    s1.autoStart = false; // 仅提供示例，默认不启用
+    s1.autoStart = false; // 仅提供示例，默认不自动启动
     c.strategies_.append(s1);
 
     return c;

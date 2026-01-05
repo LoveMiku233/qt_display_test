@@ -120,6 +120,7 @@ public:
     GroupControlStats queueGroupControl(int groupId, quint8 ch, RelayCanProtocol::Action action, const QString& source);
     QueueSnapshot queueSnapshot() const;
     ControlJobResult jobResult(quint64 jobId) const;
+    RelayCanProtocol::Action parseAction(const QString& s, bool* ok=nullptr) const;
 
     QList<AutoStrategyState> strategyStates() const;
     bool setStrategyEnabled(int strategyId, bool enabled);
@@ -155,7 +156,7 @@ private:
     void bindStrategies(const QList<AutoStrategyConfig>& strategies);
     void attachStrategiesForGroup(int groupId);
     void detachStrategiesForGroup(int groupId);
-    RelayCanProtocol::Action parseAction(const QString& s, bool* ok=nullptr) const;
+    int strategyIntervalMs(const AutoStrategyConfig& cfg) const;
 
     QList<AutoStrategyConfig> strategyConfigs_;
     QHash<int, QTimer*> strategyTimers_; // strategyId -> timer
