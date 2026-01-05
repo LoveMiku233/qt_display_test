@@ -5,6 +5,7 @@
 
 class QLabel;
 class QGraphicsDropShadowEffect;
+class QHBoxLayout;
 
 struct RelayStatusUi {
     bool ok = false;
@@ -31,6 +32,7 @@ public:
     void setTitle(const QString& t);
     void setSummary(const RelayStatusUi& st);
     void setSummaryText(const QString& l1, const QString& l2);
+    void setTags(const QStringList& tags);
 
 signals:
     void clicked(int nodeId);
@@ -43,11 +45,14 @@ protected:
 
 private:
     void animateShadow(int targetBlur, int duration);
+    void createTagLabels();
     
     int nodeId_ = 0;
     QLabel* title_ = nullptr;
     QLabel* line1_ = nullptr;
     QLabel* line2_ = nullptr;
+    QHBoxLayout* tagsLayout_ = nullptr;
+    QList<QLabel*> tagLabels_;
     QGraphicsDropShadowEffect* shadowEffect_ = nullptr;
     bool isHovered_ = false;
     bool isPressed_ = false;
