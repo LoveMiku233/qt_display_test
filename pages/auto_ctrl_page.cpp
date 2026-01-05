@@ -2,6 +2,7 @@
 #include "ui_auto_ctrl_page.h"
 #include "app_context.h"
 #include "rpc/json_rpc_client.h"
+#include "utils/glass_style.h"
 
 #include <QJsonObject>
 #include <QJsonArray>
@@ -13,6 +14,9 @@ AutoCtrlPage::AutoCtrlPage(QWidget *parent)
     , ui(new Ui::AutoCtrlPage)
 {
     ui->setupUi(this);
+
+    // 应用玻璃拟态风格样式
+    setStyleSheet(GlassStyle::getFullPageStyle());
 
     autoTimer = new QTimer(this);
     connect(autoTimer, &QTimer::timeout, this, &AutoCtrlPage::onAutoTick);

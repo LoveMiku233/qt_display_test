@@ -16,73 +16,10 @@
 #include "rpc/json_rpc_client.h"
 #include "app_context.h"
 #include "utils/animation_utils.h"
+#include "utils/glass_style.h"
 
-/**
- * @brief 现代化深色主题颜色方案
- * 
- * 定义应用程序的颜色常量和样式模板
- */
-namespace AppStyle {
-    // 主色调
-    const QString PRIMARY_COLOR = "#27ae60";        // 绿色主色(农业主题)
-    const QString PRIMARY_DARK = "#219a52";         // 深绿色
-    const QString PRIMARY_LIGHT = "#2ecc71";        // 浅绿色
-    
-    // 辅助色
-    const QString ACCENT_COLOR = "#3498db";         // 蓝色强调色
-    const QString ACCENT_LIGHT = "#5dade2";         // 浅蓝色
-    
-    // 背景色
-    const QString BACKGROUND_DARK = "#1a1a2e";      // 深色背景
-    const QString BACKGROUND_MID = "#16213e";       // 中等背景
-    const QString BACKGROUND_LIGHT = "#0f3460";     // 浅色背景
-    const QString SIDEBAR_BG = "#1a1a2e";           // 侧边栏背景
-    const QString TOPBAR_BG = "#16213e";            // 顶栏背景
-    const QString CONTENT_BG = "#0f3460";           // 内容区背景
-    
-    // 文字色
-    const QString TEXT_PRIMARY = "#e8e8e8";         // 主要文字
-    const QString TEXT_SECONDARY = "#a0a0a0";       // 次要文字
-    const QString TEXT_ACCENT = "#ffffff";          // 强调文字
-    
-    // 边框和分隔线
-    const QString BORDER_COLOR = "#2a2a4a";         // 边框颜色
-    const QString DIVIDER_COLOR = "#3a3a5a";        // 分隔线颜色
-    
-    // 状态色
-    const QString SUCCESS_COLOR = "#27ae60";        // 成功/正常
-    const QString WARNING_COLOR = "#f39c12";        // 警告
-    const QString ERROR_COLOR = "#e74c3c";          // 错误
-    
-    // 图标常量
-    const QString ICON_TIME = QString::fromUtf8("⏰");  // 时间图标
-    
-    // 导航按钮样式模板 - 增大字体并优化样式
-    const QString NAV_BUTTON_STYLE = R"(
-        QPushButton {
-            background-color: transparent;
-            color: %1;
-            border: none;
-            border-radius: 10px;
-            padding: 12px 14px;
-            font-size: 15px;
-            font-weight: 500;
-            text-align: left;
-        }
-        QPushButton:hover {
-            background-color: %2;
-            color: %3;
-        }
-        QPushButton:pressed {
-            background-color: %4;
-        }
-        QPushButton:checked {
-            background-color: %5;
-            color: %6;
-            font-weight: bold;
-        }
-    )";
-}
+// 时间图标常量
+static const QString ICON_TIME = QString::fromUtf8("⏰");
 
 /**
  * @brief 主窗口构造函数
@@ -120,7 +57,7 @@ void MainWindow::startTimeUpdater()
         if (ui->labTime) {
             // 使用QTime更高效地获取当前时间
             const QString timeStr = QString("%1 %2")
-                .arg(AppStyle::ICON_TIME)
+                .arg(ICON_TIME)
                 .arg(QTime::currentTime().toString("HH:mm:ss"));
             ui->labTime->setText(timeStr);
         }
@@ -130,7 +67,7 @@ void MainWindow::startTimeUpdater()
     // 立即更新一次
     if (ui->labTime) {
         const QString timeStr = QString("%1 %2")
-            .arg(AppStyle::ICON_TIME)
+            .arg(ICON_TIME)
             .arg(QTime::currentTime().toString("HH:mm:ss"));
         ui->labTime->setText(timeStr);
     }
@@ -286,74 +223,25 @@ void MainWindow::animatePageTransition(QWidget* from, QWidget* to, int newIndex)
 }
 
 /**
- * @brief 应用现代化深色主题样式
+ * @brief 应用玻璃拟态风格样式
+ * 
+ * 使用GlassStyle命名空间中定义的玻璃拟态样式
  */
 void MainWindow::applyStyles()
 {
-    // 设置主窗口样式
-    setStyleSheet(QString(R"(
-        QMainWindow {
-            background-color: %1;
-        }
-        QWidget {
-            font-family: "Microsoft YaHei", "SimHei", "WenQuanYi Micro Hei", sans-serif;
-        }
-    )").arg(AppStyle::BACKGROUND_DARK));
+    // 设置主窗口背景渐变样式
+    setStyleSheet(GlassStyle::MAIN_BACKGROUND);
     
-    // 设置顶栏样式
-    ui->topBar->setStyleSheet(QString(R"(
-        QFrame#topBar {
-            background-color: %1;
-            border: none;
-            border-bottom: 1px solid %2;
-        }
-        QLabel {
-            color: %3;
-            font-size: 14px;
-            padding: 4px 8px;
-        }
-        QLabel#labTitle {
-            color: %4;
-            font-size: 18px;
-            font-weight: bold;
-        }
-    )").arg(AppStyle::TOPBAR_BG)
-       .arg(AppStyle::BORDER_COLOR)
-       .arg(AppStyle::TEXT_PRIMARY)
-       .arg(AppStyle::PRIMARY_LIGHT));
+    // 设置顶栏玻璃样式
+    ui->topBar->setStyleSheet(GlassStyle::TOPBAR_GLASS);
     
-    // 设置左侧导航栏样式
-    ui->menuBar->setStyleSheet(QString(R"(
-        QFrame#menuBar {
-            background-color: %1;
-            border: none;
-            border-right: 1px solid %2;
-        }
-    )").arg(AppStyle::SIDEBAR_BG)
-       .arg(AppStyle::BORDER_COLOR));
+    // 设置左侧导航栏玻璃样式
+    ui->menuBar->setStyleSheet(GlassStyle::SIDEBAR_GLASS);
     
-    // 设置内容区样式
-    ui->contentStackedWidget->setStyleSheet(QString(R"(
-        QStackedWidget#contentStackedWidget {
-            background-color: %1;
-            border: none;
-            border-radius: 0px;
-        }
-        QStackedWidget#contentStackedWidget > QWidget {
-            background-color: %1;
-        }
-    )").arg(AppStyle::CONTENT_BG));
+    // 设置内容区玻璃样式
+    ui->contentStackedWidget->setStyleSheet(GlassStyle::CONTENT_GLASS);
     
-    // 导航按钮样式
-    QString navButtonStyle = AppStyle::NAV_BUTTON_STYLE
-        .arg(AppStyle::TEXT_SECONDARY)      // 普通文字颜色
-        .arg(AppStyle::BACKGROUND_LIGHT)    // 悬停背景
-        .arg(AppStyle::TEXT_PRIMARY)        // 悬停文字
-        .arg(AppStyle::PRIMARY_DARK)        // 按下背景
-        .arg(AppStyle::PRIMARY_COLOR)       // 选中背景
-        .arg(AppStyle::TEXT_ACCENT);        // 选中文字
-    
-    // 应用到所有导航按钮
+    // 应用导航按钮玻璃样式
     QList<QPushButton*> navButtons = {
         ui->btnMain, ui->btnControl, ui->btnParam,
         ui->btnGroup, ui->btnAutoCtrl, ui->btnComm, ui->btnLog
@@ -361,7 +249,7 @@ void MainWindow::applyStyles()
     
     for (auto* btn : navButtons) {
         if (btn) {
-            btn->setStyleSheet(navButtonStyle);
+            btn->setStyleSheet(GlassStyle::NAV_BUTTON_GLASS);
             btn->setCheckable(true);
             btn->setCursor(Qt::PointingHandCursor);
         }
@@ -372,7 +260,7 @@ void MainWindow::applyStyles()
         ui->btnMain->setChecked(true);
     }
     
-    qDebug() << "[主窗口] 现代化深色主题样式已应用";
+    qDebug() << "[主窗口] 玻璃拟态风格样式已应用";
 }
 
 /**

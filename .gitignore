@@ -16,3 +16,6 @@ Makefile.*
 app/qt_display_yk_1
 core/core_server
 tests/tests
+
+# Config directory (generated at runtime)
+app/config/
