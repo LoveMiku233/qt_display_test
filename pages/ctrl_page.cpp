@@ -72,9 +72,13 @@ void CtrlPage::loadCards()
         const int col = i % 2;
         grid->addWidget(card, row, col);
 
-        connect(card, &DeviceCardWidget::clicked, this, [this](int node){
+        connect(card, &DeviceCardWidget::clicked, this, [this, card](int node){
             DeviceDialog dlg(node, rpc_, this);
             dlg.exec();
+            // 确保对话框关闭后卡片仍然可见
+            for (auto* c : cards_) {
+                if (c) c->setVisible(true);
+            }
         });
 
         cards_.append(card);

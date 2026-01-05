@@ -6,7 +6,13 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QInputDialog>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QSpinBox>
+#include <QPushButton>
 #include <QMessageBox>
 
 GroupPage::GroupPage(QWidget *parent)
@@ -118,12 +124,60 @@ void GroupPage::onRefreshGroups() {
 }
 
 void GroupPage::onCreateGroup() {
-    bool ok;
-    int groupId = QInputDialog::getInt(this, "创建新组", "输入组ID:", 1, 1, 999, 1, &ok);
-    if (!ok) return;
+    // 创建自定义输入对话框
+    QDialog dlg(this);
+    dlg.setWindowTitle("创建新组");
+    dlg.setStyleSheet(GlassStyle::GLASS_INPUT_DIALOG);
+    dlg.setFixedSize(350, 200);
     
-    QString name = QInputDialog::getText(this, "创建新组", "输入组名称:", QLineEdit::Normal, "", &ok);
-    if (!ok || name.isEmpty()) return;
+    QVBoxLayout* layout = new QVBoxLayout(&dlg);
+    layout->setContentsMargins(20, 20, 20, 20);
+    layout->setSpacing(15);
+    
+    // 组ID输入
+    QLabel* lblId = new QLabel("组ID:", &dlg);
+    QSpinBox* spinId = new QSpinBox(&dlg);
+    spinId->setRange(1, 999);
+    spinId->setValue(1);
+    spinId->setMinimumHeight(40);
+    
+    QHBoxLayout* idRow = new QHBoxLayout();
+    idRow->addWidget(lblId);
+    idRow->addWidget(spinId);
+    layout->addLayout(idRow);
+    
+    // 组名称输入
+    QLabel* lblName = new QLabel("组名称:", &dlg);
+    QLineEdit* editName = new QLineEdit(&dlg);
+    editName->setPlaceholderText("请输入组名称");
+    editName->setMinimumHeight(40);
+    
+    QHBoxLayout* nameRow = new QHBoxLayout();
+    nameRow->addWidget(lblName);
+    nameRow->addWidget(editName);
+    layout->addLayout(nameRow);
+    
+    // 按钮
+    QHBoxLayout* btnRow = new QHBoxLayout();
+    QPushButton* btnOk = new QPushButton("确定", &dlg);
+    btnOk->setObjectName("primary");
+    QPushButton* btnCancel = new QPushButton("取消", &dlg);
+    btnRow->addStretch();
+    btnRow->addWidget(btnCancel);
+    btnRow->addWidget(btnOk);
+    layout->addLayout(btnRow);
+    
+    connect(btnOk, &QPushButton::clicked, &dlg, &QDialog::accept);
+    connect(btnCancel, &QPushButton::clicked, &dlg, &QDialog::reject);
+    
+    if (dlg.exec() != QDialog::Accepted) return;
+    
+    int groupId = spinId->value();
+    QString name = editName->text().trimmed();
+    if (name.isEmpty()) {
+        QMessageBox::warning(this, "错误", "组名称不能为空");
+        return;
+    }
 
     auto* rpc = AppContext::instance().rpc();
     if (!rpc) return;
@@ -180,9 +234,44 @@ void GroupPage::onAddDevice() {
         return;
     }
 
-    bool ok;
-    int nodeId = QInputDialog::getInt(this, "添加设备", "输入设备节点ID:", 1, 1, 255, 1, &ok);
-    if (!ok) return;
+    // 创建自定义输入对话框
+    QDialog dlg(this);
+    dlg.setWindowTitle("添加设备");
+    dlg.setStyleSheet(GlassStyle::GLASS_INPUT_DIALOG);
+    dlg.setFixedSize(320, 150);
+    
+    QVBoxLayout* layout = new QVBoxLayout(&dlg);
+    layout->setContentsMargins(20, 20, 20, 20);
+    layout->setSpacing(15);
+    
+    // 节点ID输入
+    QLabel* lblNode = new QLabel("设备节点ID:", &dlg);
+    QSpinBox* spinNode = new QSpinBox(&dlg);
+    spinNode->setRange(1, 255);
+    spinNode->setValue(1);
+    spinNode->setMinimumHeight(40);
+    
+    QHBoxLayout* nodeRow = new QHBoxLayout();
+    nodeRow->addWidget(lblNode);
+    nodeRow->addWidget(spinNode);
+    layout->addLayout(nodeRow);
+    
+    // 按钮
+    QHBoxLayout* btnRow = new QHBoxLayout();
+    QPushButton* btnOk = new QPushButton("确定", &dlg);
+    btnOk->setObjectName("primary");
+    QPushButton* btnCancel = new QPushButton("取消", &dlg);
+    btnRow->addStretch();
+    btnRow->addWidget(btnCancel);
+    btnRow->addWidget(btnOk);
+    layout->addLayout(btnRow);
+    
+    connect(btnOk, &QPushButton::clicked, &dlg, &QDialog::accept);
+    connect(btnCancel, &QPushButton::clicked, &dlg, &QDialog::reject);
+    
+    if (dlg.exec() != QDialog::Accepted) return;
+    
+    int nodeId = spinNode->value();
 
     auto* rpc = AppContext::instance().rpc();
     if (!rpc) return;

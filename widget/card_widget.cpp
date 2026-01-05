@@ -9,6 +9,7 @@
 #include "card_widget.h"
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QMouseEvent>
 #include <QPropertyAnimation>
 #include <QGraphicsDropShadowEffect>
@@ -85,7 +86,7 @@ DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     setFrameShadow(QFrame::Raised);
     setCursor(Qt::PointingHandCursor);
     setAttribute(Qt::WA_Hover, true);
-    setMinimumHeight(100);
+    setMinimumHeight(120);
     
     // 应用玻璃拟态样式
     setStyleSheet(CardStyle::CARD_NORMAL);
@@ -101,7 +102,13 @@ DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     // 创建标题标签 - 玻璃拟态风格
     title_ = new QLabel(QString("节点 %1").arg(nodeId_), this);
     title_->setStyleSheet("font-weight:600; font-size:16px; color:#ffffff;");
-
+    
+    // 创建标签行布局
+    tagsLayout_ = new QHBoxLayout();
+    tagsLayout_->setContentsMargins(0, 0, 0, 0);
+    tagsLayout_->setSpacing(6);
+    tagsLayout_->addStretch();
+    
     // 创建信息行标签 - 玻璃拟态风格
     line1_ = new QLabel("—", this);
     line1_->setStyleSheet("font-size:13px; color:rgba(255, 255, 255, 0.7);");
@@ -113,10 +120,19 @@ DeviceCardWidget::DeviceCardWidget(int nodeId, QWidget* parent)
     auto* lay = new QVBoxLayout(this);
     lay->setContentsMargins(16, 14, 16, 14);
     lay->setSpacing(6);
-    lay->addWidget(title_);
+    
+    // 标题行 (标题 + 标签)
+    auto* titleRow = new QHBoxLayout();
+    titleRow->addWidget(title_);
+    titleRow->addLayout(tagsLayout_);
+    
+    lay->addLayout(titleRow);
     lay->addWidget(line1_);
     lay->addWidget(line2_);
     lay->addStretch(1);
+    
+    // 默认添加标签
+    createTagLabels();
 }
 
 /**
@@ -231,4 +247,66 @@ void DeviceCardWidget::animateShadow(int targetBlur, int duration)
     anim->setEndValue(targetBlur);
     anim->setEasingCurve(QEasingCurve::OutCubic);
     anim->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+/**
+ * @brief 创建默认标签
+ */
+void DeviceCardWidget::createTagLabels()
+{
+    // 默认标签列表，带不同颜色
+    QStringList defaultTags = {"CAN", "4路继电器", "电流检测"};
+    setTags(defaultTags);
+}
+
+/**
+ * @brief 设置卡片标签
+ * @param tags 标签文本列表
+ */
+void DeviceCardWidget::setTags(const QStringList& tags)
+{
+    // 清理现有标签
+    for (auto* lbl : tagLabels_) {
+        tagsLayout_->removeWidget(lbl);
+        lbl->deleteLater();
+    }
+    tagLabels_.clear();
+    
+    // 标签颜色配置 - 不同功能不同颜色
+    const QStringList colors = {
+        "rgba(16, 185, 129, 0.75)",   // CAN - 绿色
+        "rgba(245, 158, 11, 0.75)",   // 4路继电器 - 橙色
+        "rgba(59, 130, 246, 0.75)"    // 电流检测 - 蓝色
+    };
+    
+    const QStringList borderColors = {
+        "rgba(16, 185, 129, 0.9)",
+        "rgba(245, 158, 11, 0.9)",
+        "rgba(59, 130, 246, 0.9)"
+    };
+    
+    int idx = 0;
+    for (const QString& tag : tags) {
+        auto* lbl = new QLabel(tag, this);
+        QString bgColor = colors.value(idx % colors.size());
+        QString borderColor = borderColors.value(idx % borderColors.size());
+        
+        lbl->setStyleSheet(QString(
+            "QLabel {"
+            "  background: %1;"
+            "  color: #ffffff;"
+            "  border: 1px solid %2;"
+            "  border-radius: 8px;"
+            "  padding: 3px 8px;"
+            "  font-size: 11px;"
+            "  font-weight: 500;"
+            "}"
+        ).arg(bgColor, borderColor));
+        
+        lbl->setFixedHeight(22);
+        
+        tagsLayout_->insertWidget(tagsLayout_->count() - 1, lbl);  // Insert before stretch
+        tagLabels_.append(lbl);
+        idx++;
+    }
 }
