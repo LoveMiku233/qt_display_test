@@ -7,6 +7,7 @@
 #include "utils/logger.h"
 
 #include <QDebug>
+#include <QDateTime>
 
 static const char* LOG_SOURCE = "核心上下文";
 
@@ -30,6 +31,8 @@ bool CoreContext::init()
         LOG_ERROR(LOG_SOURCE, "初始化设备失败");
         return false;
     }
+    initQueue();
+    bindStrategies({});
     LOG_INFO(LOG_SOURCE, "核心上下文初始化完成");
     return true;
 }
@@ -63,6 +66,9 @@ bool CoreContext::init(const CoreConfig& cfg)
         LOG_ERROR(LOG_SOURCE, "从配置初始化设备失败");
         return false;
     }
+
+    initQueue();
+    bindStrategies(cfg.strategies_);
     
     LOG_INFO(LOG_SOURCE, "核心上下文初始化完成");
     return true;
@@ -227,15 +233,308 @@ bool CoreContext::initDevices(const CoreConfig& cfg)
     return true;
 }
 
-QStringList CoreContext::methodGroups() const
+void CoreContext::initQueue()
 {
-    return {"rpc.*", "sys.*", "can.*", "relay.*", "group.*"};
+    if (controlTimer_) return;
+    controlTimer_ = new QTimer(this);
+    controlTimer_->setInterval(5);
+    connect(controlTimer_, &QTimer::timeout, this, &CoreContext::processNextJob);
 }
 
+void CoreContext::startQueueProcessor()
+{
+    if (controlQueue_.isEmpty() || !controlTimer_) return;
+    if (!controlTimer_->isActive()) {
+        controlTimer_->start();
+    }
+}
 
+ControlJobResult CoreContext::executeJob(const ControlJob& job)
+{
+    ControlJobResult res;
+    res.finishedMs = QDateTime::currentMSecsSinceEpoch();
 
+    auto* dev = relays.value(job.node, nullptr);
+    if (!dev) {
+        res.message = "device not found";
+        return res;
+    }
 
+    const bool ok = dev->control(job.channel, job.action);
+    res.ok = ok;
+    res.message = ok ? "ok" : "device rejected";
+    jobResults_.insert(job.id, res);
+    lastJobId_ = job.id;
+    return res;
+}
 
+void CoreContext::processNextJob()
+{
+    if (processingQueue_) return;
+    if (controlQueue_.isEmpty()) {
+        if (controlTimer_) controlTimer_->stop();
+        return;
+    }
 
+    processingQueue_ = true;
+    const auto job = controlQueue_.dequeue();
+    executeJob(job);
+    processingQueue_ = false;
 
+    if (controlQueue_.isEmpty() && controlTimer_) {
+        controlTimer_->stop();
+    }
+}
 
+EnqueueResult CoreContext::enqueueControl(quint8 node, quint8 ch, RelayCanProtocol::Action action, const QString& source, bool forceQueue)
+{
+    EnqueueResult r;
+    if (!controlTimer_) initQueue();
+    if (!relays.contains(node)) {
+        r.error = "unknown node";
+        return r;
+    }
+
+    ControlJob job;
+    job.id = nextJobId_++;
+    job.node = node;
+    job.channel = ch;
+    job.action = action;
+    job.source = source;
+    job.enqueuedMs = QDateTime::currentMSecsSinceEpoch();
+
+    const bool immediate = controlQueue_.isEmpty() && !processingQueue_ && !forceQueue;
+    r.accepted = true;
+    r.jobId = job.id;
+
+    if (immediate) {
+        const auto res = executeJob(job);
+        r.executedImmediately = true;
+        r.success = res.ok;
+        return r;
+    }
+
+    controlQueue_.enqueue(job);
+    startQueueProcessor();
+    r.success = true;
+    return r;
+}
+
+GroupControlStats CoreContext::queueGroupControl(int groupId, quint8 ch, RelayCanProtocol::Action action, const QString& source)
+{
+    GroupControlStats st;
+    const QList<quint8> nodes = deviceGroups.value(groupId);
+    st.total = nodes.size();
+
+    for (quint8 node : nodes) {
+        const auto res = enqueueControl(node, ch, action, source, /*forceQueue=*/true);
+        if (!res.accepted) {
+            st.missing++;
+            continue;
+        }
+        st.accepted++;
+        st.jobIds.append(res.jobId);
+    }
+    return st;
+}
+
+QueueSnapshot CoreContext::queueSnapshot() const
+{
+    QueueSnapshot s;
+    s.pending = controlQueue_.size();
+    s.active = controlTimer_ && controlTimer_->isActive();
+    s.lastJobId = lastJobId_;
+    return s;
+}
+
+ControlJobResult CoreContext::jobResult(quint64 jobId) const
+{
+    return jobResults_.value(jobId, ControlJobResult{});
+}
+
+bool CoreContext::createGroup(int groupId, const QString& name, QString* err)
+{
+    if (groupId <= 0) {
+        if (err) *err = "invalid groupId";
+        return false;
+    }
+    if (deviceGroups.contains(groupId)) {
+        if (err) *err = "group exists";
+        return false;
+    }
+    deviceGroups.insert(groupId, {});
+    groupNames.insert(groupId, name);
+    attachStrategiesForGroup(groupId);
+    return true;
+}
+
+bool CoreContext::deleteGroup(int groupId, QString* err)
+{
+    if (!deviceGroups.contains(groupId)) {
+        if (err) *err = "group not found";
+        return false;
+    }
+    detachStrategiesForGroup(groupId);
+    deviceGroups.remove(groupId);
+    groupNames.remove(groupId);
+    return true;
+}
+
+bool CoreContext::addDeviceToGroup(int groupId, quint8 node, QString* err)
+{
+    if (!deviceGroups.contains(groupId)) {
+        if (err) *err = "group not found";
+        return false;
+    }
+    if (!relays.contains(node)) {
+        if (err) *err = "device not found";
+        return false;
+    }
+    QList<quint8>& devices = deviceGroups[groupId];
+    if (!devices.contains(node)) {
+        devices.append(node);
+    }
+    attachStrategiesForGroup(groupId);
+    return true;
+}
+
+bool CoreContext::removeDeviceFromGroup(int groupId, quint8 node, QString* err)
+{
+    if (!deviceGroups.contains(groupId)) {
+        if (err) *err = "group not found";
+        return false;
+    }
+    deviceGroups[groupId].removeAll(node);
+    return true;
+}
+
+RelayCanProtocol::Action CoreContext::parseAction(const QString& s, bool* ok) const
+{
+    const QString a = s.trimmed().toLower();
+    if (ok) *ok = true;
+    if (a == "stop" || a == "0") return RelayCanProtocol::Action::Stop;
+    if (a == "fwd"  || a == "forward" || a == "1") return RelayCanProtocol::Action::Forward;
+    if (a == "rev"  || a == "reverse" || a == "2") return RelayCanProtocol::Action::Reverse;
+    if (ok) *ok = false;
+    return RelayCanProtocol::Action::Stop;
+}
+
+void CoreContext::bindStrategies(const QList<AutoStrategyConfig>& strategies)
+{
+    strategyConfigs_ = strategies;
+    for (auto* t : strategyTimers_) {
+        if (t) t->stop();
+        if (t) t->deleteLater();
+    }
+    strategyTimers_.clear();
+
+    for (auto it = deviceGroups.begin(); it != deviceGroups.end(); ++it) {
+        attachStrategiesForGroup(it.key());
+    }
+}
+
+void CoreContext::attachStrategiesForGroup(int groupId)
+{
+    for (const auto& cfg : strategyConfigs_) {
+        if (!cfg.enabled || cfg.groupId != groupId) continue;
+        bool okAction = false;
+        const auto action = parseAction(cfg.action, &okAction);
+        if (!okAction) continue;
+        if (!deviceGroups.contains(cfg.groupId)) continue;
+
+        QTimer* timer = strategyTimers_.value(cfg.strategyId, nullptr);
+        if (!timer) {
+            timer = new QTimer(this);
+            timer->setInterval(qMax(1, cfg.intervalSec) * 1000);
+            connect(timer, &QTimer::timeout, this, [this, cfg, action](){
+                queueGroupControl(cfg.groupId, cfg.channel, action,
+                                  QString("auto:%1").arg(cfg.name.isEmpty() ? QString::number(cfg.strategyId) : cfg.name));
+            });
+            strategyTimers_.insert(cfg.strategyId, timer);
+        } else {
+            timer->setInterval(qMax(1, cfg.intervalSec) * 1000);
+        }
+
+        if (!cfg.autoStart && timer->isActive()) {
+            timer->stop();
+        }
+        if (cfg.autoStart && cfg.enabled && !timer->isActive()) {
+            timer->start();
+        }
+    }
+}
+
+void CoreContext::detachStrategiesForGroup(int groupId)
+{
+    for (const auto& cfg : strategyConfigs_) {
+        if (cfg.groupId != groupId) continue;
+        QTimer* timer = strategyTimers_.value(cfg.strategyId, nullptr);
+        if (timer) {
+            timer->stop();
+            timer->deleteLater();
+        }
+        strategyTimers_.remove(cfg.strategyId);
+    }
+}
+
+QList<AutoStrategyState> CoreContext::strategyStates() const
+{
+    QList<AutoStrategyState> list;
+    for (const auto& cfg : strategyConfigs_) {
+        AutoStrategyState st;
+        st.cfg = cfg;
+        auto* timer = strategyTimers_.value(cfg.strategyId, nullptr);
+        st.attached = timer != nullptr && deviceGroups.contains(cfg.groupId);
+        st.running = timer && timer->isActive();
+        list.append(st);
+    }
+    return list;
+}
+
+bool CoreContext::setStrategyEnabled(int strategyId, bool enabled)
+{
+    bool found = false;
+    int groupId = 0;
+    for (auto& cfg : strategyConfigs_) {
+        if (cfg.strategyId == strategyId) {
+            cfg.enabled = enabled;
+            found = true;
+            groupId = cfg.groupId;
+            break;
+        }
+    }
+    if (!found) return false;
+
+    if (enabled) {
+        attachStrategiesForGroup(groupId);
+    } else {
+        // stop timer if exists
+        QTimer* timer = strategyTimers_.value(strategyId, nullptr);
+        if (timer) {
+            timer->stop();
+            timer->deleteLater();
+            strategyTimers_.remove(strategyId);
+        }
+    }
+    return true;
+}
+
+bool CoreContext::triggerStrategy(int strategyId)
+{
+    for (const auto& cfg : strategyConfigs_) {
+        if (cfg.strategyId != strategyId) continue;
+        bool okAction = false;
+        const auto action = parseAction(cfg.action, &okAction);
+        if (!okAction) return false;
+        if (!deviceGroups.contains(cfg.groupId)) return false;
+        const auto stats = queueGroupControl(cfg.groupId, cfg.channel, action,
+                          QString("manual-strategy:%1").arg(cfg.name.isEmpty() ? QString::number(cfg.strategyId) : cfg.name));
+        return stats.accepted > 0;
+    }
+    return false;
+}
+
+QStringList CoreContext::methodGroups() const
+{
+    return {"rpc.*", "sys.*", "can.*", "relay.*", "group.*", "control.*", "auto.*"};
+}

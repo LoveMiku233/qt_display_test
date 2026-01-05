@@ -30,6 +30,7 @@ void RpcRegistry::registerAll()
     registerCan();
     registerRelay();
     registerGroup();
+    registerAuto();
 }
 
 // register base methods
@@ -143,10 +144,18 @@ void RpcRegistry::registerRelay()
         if (!okAction)
             return RpcHelpers::err(RpcError::BadParameterValue, "invalid action (stop/fwd/rev)");
 
-        auto* dev = ctx_->relays.value(node, nullptr);
-        if (!dev) return RpcHelpers::err(RpcError::BadParameterValue, "unknown node");
+        const auto res = ctx_->enqueueControl(node, ch, action, "rpc:relay.control");
+        if (!res.accepted) {
+            return RpcHelpers::err(RpcError::BadParameterValue, res.error);
+        }
 
-        return QJsonObject{{"ok", dev->control(ch, action)}};
+        QJsonObject obj{
+            {"ok", true},
+            {"jobId", double(res.jobId)},
+            {"queued", !res.executedImmediately}
+        };
+        if (res.executedImmediately) obj["success"] = res.success;
+        return obj;
     });
 
     // relay.query: {node:2, ch:0}
@@ -267,12 +276,9 @@ void RpcRegistry::registerGroup()
         if (!RpcHelpers::getString(params, "name", name))
             return RpcHelpers::err(RpcError::MissingParameter, "missing name");
         
-        if (ctx_->deviceGroups.contains(groupId))
-            return RpcHelpers::err(RpcError::BadParameterValue, "group already exists");
-        
-        ctx_->deviceGroups.insert(groupId, QList<quint8>());
-        ctx_->groupNames.insert(groupId, name);
-        
+        QString err;
+        if (!ctx_->createGroup(groupId, name, &err))
+            return RpcHelpers::err(RpcError::BadParameterValue, err);
         return QJsonObject{{"ok", true}, {"groupId", groupId}};
     });
 
@@ -283,12 +289,9 @@ void RpcRegistry::registerGroup()
         if (!RpcHelpers::getI32(params, "groupId", groupId))
             return RpcHelpers::err(RpcError::MissingParameter, "missing groupId");
         
-        if (!ctx_->deviceGroups.contains(groupId))
-            return RpcHelpers::err(RpcError::BadParameterValue, "group not found");
-        
-        ctx_->deviceGroups.remove(groupId);
-        ctx_->groupNames.remove(groupId);
-        
+        QString err;
+        if (!ctx_->deleteGroup(groupId, &err))
+            return RpcHelpers::err(RpcError::BadParameterValue, err);
         return QJsonObject{{"ok", true}};
     });
 
@@ -302,17 +305,9 @@ void RpcRegistry::registerGroup()
         if (!RpcHelpers::getU8(params, "node", node))
             return RpcHelpers::err(RpcError::MissingParameter, "missing/invalid node");
         
-        if (!ctx_->deviceGroups.contains(groupId))
-            return RpcHelpers::err(RpcError::BadParameterValue, "group not found");
-        
-        if (!ctx_->relays.contains(node))
-            return RpcHelpers::err(RpcError::BadParameterValue, "device not found");
-        
-        QList<quint8>& devices = ctx_->deviceGroups[groupId];
-        if (!devices.contains(node)) {
-            devices.append(node);
-        }
-        
+        QString err;
+        if (!ctx_->addDeviceToGroup(groupId, node, &err))
+            return RpcHelpers::err(RpcError::BadParameterValue, err);
         return QJsonObject{{"ok", true}};
     });
 
@@ -326,12 +321,9 @@ void RpcRegistry::registerGroup()
         if (!RpcHelpers::getU8(params, "node", node))
             return RpcHelpers::err(RpcError::MissingParameter, "missing/invalid node");
         
-        if (!ctx_->deviceGroups.contains(groupId))
-            return RpcHelpers::err(RpcError::BadParameterValue, "group not found");
-        
-        QList<quint8>& devices = ctx_->deviceGroups[groupId];
-        devices.removeAll(node);
-        
+        QString err;
+        if (!ctx_->removeDeviceFromGroup(groupId, node, &err))
+            return RpcHelpers::err(RpcError::BadParameterValue, err);
         return QJsonObject{{"ok", true}};
     });
 
@@ -355,25 +347,83 @@ void RpcRegistry::registerGroup()
         
         if (!ctx_->deviceGroups.contains(groupId))
             return RpcHelpers::err(RpcError::BadParameterValue, "group not found");
-        
-        const QList<quint8>& devices = ctx_->deviceGroups[groupId];
-        int successCount = 0;
-        int failCount = 0;
-        
-        for (quint8 node : devices) {
-            auto* dev = ctx_->relays.value(node, nullptr);
-            if (dev && dev->control(ch, action)) {
-                successCount++;
-            } else {
-                failCount++;
-            }
-        }
-        
+
+        const auto stats = ctx_->queueGroupControl(groupId, ch, action, "rpc:group.control");
+        QJsonArray jobs;
+        for (quint64 id : stats.jobIds) jobs.append(double(id));
+
         return QJsonObject{
             {"ok", true},
-            {"total", devices.size()},
-            {"success", successCount},
-            {"failed", failCount}
+            {"total", stats.total},
+            {"accepted", stats.accepted},
+            {"missing", stats.missing},
+            {"jobIds", jobs}
         };
+    });
+}
+
+void RpcRegistry::registerAuto()
+{
+    disp_->registerMethod("control.queue.status", [&](const QJsonObject&){
+        const auto snap = ctx_->queueSnapshot();
+        return QJsonObject{
+            {"ok", true},
+            {"pending", snap.pending},
+            {"active", snap.active},
+            {"lastJobId", double(snap.lastJobId)}
+        };
+    });
+
+    disp_->registerMethod("control.queue.result", [&](const QJsonObject& params){
+        qint32 jobId = 0;
+        if (!RpcHelpers::getI32(params, "jobId", jobId) || jobId <= 0)
+            return RpcHelpers::err(RpcError::MissingParameter, "missing/invalid jobId");
+        const auto res = ctx_->jobResult(quint64(jobId));
+        return QJsonObject{
+            {"ok", res.ok},
+            {"message", res.message},
+            {"finishedMs", double(res.finishedMs)}
+        };
+    });
+
+    disp_->registerMethod("auto.strategy.list", [&](const QJsonObject&){
+        QJsonArray arr;
+        const auto states = ctx_->strategyStates();
+        for (const auto& st : states) {
+            QJsonObject o;
+            o["id"] = st.cfg.strategyId;
+            o["name"] = st.cfg.name;
+            o["groupId"] = st.cfg.groupId;
+            o["channel"] = int(st.cfg.channel);
+            o["action"] = st.cfg.action;
+            o["intervalSec"] = st.cfg.intervalSec;
+            o["enabled"] = st.cfg.enabled;
+            o["autoStart"] = st.cfg.autoStart;
+            o["attached"] = st.attached;
+            o["running"] = st.running;
+            arr.append(o);
+        }
+        return QJsonObject{{"ok", true}, {"strategies", arr}};
+    });
+
+    disp_->registerMethod("auto.strategy.enable", [&](const QJsonObject& params){
+        qint32 id = 0;
+        bool enabled = true;
+        if (!RpcHelpers::getI32(params, "id", id))
+            return RpcHelpers::err(RpcError::MissingParameter, "missing id");
+        if (!RpcHelpers::getBool(params, "enabled", enabled, true))
+            return RpcHelpers::err(RpcError::BadParameterType, "invalid enabled");
+        if (!ctx_->setStrategyEnabled(id, enabled))
+            return RpcHelpers::err(RpcError::BadParameterValue, "strategy not found");
+        return QJsonObject{{"ok", true}};
+    });
+
+    disp_->registerMethod("auto.strategy.trigger", [&](const QJsonObject& params){
+        qint32 id = 0;
+        if (!RpcHelpers::getI32(params, "id", id))
+            return RpcHelpers::err(RpcError::MissingParameter, "missing id");
+        if (!ctx_->triggerStrategy(id))
+            return RpcHelpers::err(RpcError::BadParameterValue, "strategy not found or not attached");
+        return QJsonObject{{"ok", true}};
     });
 }

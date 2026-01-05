@@ -3,7 +3,11 @@
 
 #include <QObject>
 #include <QHash>
+#include <QQueue>
+#include <QTimer>
+
 #include "core/core_config.h"
+#include "device/can/relay_can_protocol.h"
 
 // 前向声明
 class SystemSettings;
@@ -12,6 +16,48 @@ class CanDeviceManager;
 class RelayCanDeviceGD427;
 
 struct CanConfig;
+
+struct ControlJob {
+    quint64 id = 0;
+    quint8 node = 0;
+    quint8 channel = 0;
+    RelayCanProtocol::Action action = RelayCanProtocol::Action::Stop;
+    QString source;
+    qint64 enqueuedMs = 0;
+};
+
+struct ControlJobResult {
+    bool ok = false;
+    QString message;
+    qint64 finishedMs = 0;
+};
+
+struct EnqueueResult {
+    quint64 jobId = 0;
+    bool accepted = false;
+    bool executedImmediately = false;
+    bool success = false;
+    QString error;
+};
+
+struct GroupControlStats {
+    int total = 0;
+    int accepted = 0;
+    int missing = 0;
+    QList<quint64> jobIds;
+};
+
+struct QueueSnapshot {
+    int pending = 0;
+    bool active = false;
+    quint64 lastJobId = 0;
+};
+
+struct AutoStrategyState {
+    AutoStrategyConfig cfg;
+    bool attached = false;
+    bool running = false;
+};
 
 /**
  * @brief 核心上下文类
@@ -64,6 +110,20 @@ public:
     // 服务器配置
     quint16 rpcPort = 12345;                // RPC服务端口
 
+    // 组管理与控制队列接口
+    bool createGroup(int groupId, const QString& name, QString* err=nullptr);
+    bool deleteGroup(int groupId, QString* err=nullptr);
+    bool addDeviceToGroup(int groupId, quint8 node, QString* err=nullptr);
+    bool removeDeviceFromGroup(int groupId, quint8 node, QString* err=nullptr);
+
+    EnqueueResult enqueueControl(quint8 node, quint8 ch, RelayCanProtocol::Action action, const QString& source, bool forceQueue=false);
+    GroupControlStats queueGroupControl(int groupId, quint8 ch, RelayCanProtocol::Action action, const QString& source);
+    QueueSnapshot queueSnapshot() const;
+    ControlJobResult jobResult(quint64 jobId) const;
+
+    QList<AutoStrategyState> strategyStates() const;
+    bool setStrategyEnabled(int strategyId, bool enabled);
+    bool triggerStrategy(int strategyId);
 
 private:
     /**
@@ -86,6 +146,26 @@ private:
      * @param cfg 核心配置对象
      */
     bool initDevices(const CoreConfig& cfg);
+
+    void initQueue();
+    void startQueueProcessor();
+    void processNextJob();
+    ControlJobResult executeJob(const ControlJob& job);
+
+    void bindStrategies(const QList<AutoStrategyConfig>& strategies);
+    void attachStrategiesForGroup(int groupId);
+    void detachStrategiesForGroup(int groupId);
+    RelayCanProtocol::Action parseAction(const QString& s, bool* ok=nullptr) const;
+
+    QList<AutoStrategyConfig> strategyConfigs_;
+    QHash<int, QTimer*> strategyTimers_; // strategyId -> timer
+
+    QQueue<ControlJob> controlQueue_;
+    QHash<quint64, ControlJobResult> jobResults_;
+    QTimer* controlTimer_ = nullptr;
+    bool processingQueue_ = false;
+    quint64 nextJobId_ = 1;
+    quint64 lastJobId_ = 0;
 };
 
 #endif // CORE_CONTEXT_H

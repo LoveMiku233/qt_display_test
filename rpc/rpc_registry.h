@@ -22,6 +22,7 @@ private:
     void registerCan();
     void registerRelay();
     void registerGroup();
+    void registerAuto();
 };
 
 #endif // RPC_REGISTRY_H
