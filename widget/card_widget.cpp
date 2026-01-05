@@ -251,12 +251,32 @@ void DeviceCardWidget::animateShadow(int targetBlur, int duration)
 
 /**
  * @brief 创建默认标签
+ * 
+ * 根据节点ID生成不同的标签组合，展示设备功能
  */
 void DeviceCardWidget::createTagLabels()
 {
-    // 默认标签列表，带不同颜色
-    QStringList defaultTags = {"CAN", "4路继电器", "电流检测"};
-    setTags(defaultTags);
+    QStringList tags;
+    
+    // 根据节点ID设置不同的标签组合
+    // 所有设备都是CAN设备
+    tags << "CAN";
+    
+    // 根据节点ID添加不同的功能标签
+    if (nodeId_ % 2 == 1) {
+        // 奇数节点: 4路继电器
+        tags << "4路继电器";
+    } else {
+        // 偶数节点: 2路继电器
+        tags << "2路继电器";
+    }
+    
+    // 节点1-2有电流检测功能
+    if (nodeId_ <= 2) {
+        tags << "电流检测";
+    }
+    
+    setTags(tags);
 }
 
 /**
